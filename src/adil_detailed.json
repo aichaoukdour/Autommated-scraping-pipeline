@@ -1,0 +1,286 @@
+[
+  {
+    "hs_code": "0101210000",
+    "scraped_at": "2026-01-02T23:20:13.169814",
+    "scrape_status": "success",
+    "main_content": {
+      "raw_text": "ADiL\n \nVous êtes au niveau de la position tarifaire :\n\n0101.21.00.00\n\n \n\nDescription du Produit Remarquable :\n( Source : Office des Changes )\n\nAnimaux vivants (alimentation)\n\n* * * * * * *\n\nEntrée en vigueur le : vendredi 2 janvier 2015",
+      "metadata": {
+        "position": "0101.21.00.00",
+        "source": "Office des Changes )"
+      },
+      "key_values": {
+        "ADiL\n \nVous êtes au niveau de la position tarifaire": "0101.21.00.00",
+        "Description du Produit Remarquable": "( Source : Office des Changes )",
+        "Animaux vivants (alimentation)\n\n* * * * * * *\n\nEntrée en vigueur le": "vendredi 2 janvier 2015"
+      },
+      "length": 236
+    },
+    "sections": [
+      {
+        "section_name": "Position tarifaire",
+        "section_type": "classification",
+        "content": {
+          "raw_text": "ADiL\nNomenclature douanière.\nPosition tarifaire :\n0101.21.00.00\nSituation du :\n03/01/2026 00:19:59\nSource :\nADII\n\nSECTION : 01 - Animaux vivants et produits du règne animal\nCHAPITRE : 01 - Animaux vivants\nDESIGNATION DU PRODUIT :\nCodification\nDésignation du Produit\ndans le Système Harmonisé\nUnité\nde Quantité Normalisée\n01.01\nChevaux, Ã¢nes, mulets et bardots, vivants\n0101.21\n00\n00\n- - Reproducteurs de race pure (a.)\nU",
+          "metadata": {
+            "position": "0101.21.00.00",
+            "source": "ADII",
+            "date": "03/01/2026 00:19:59",
+            "unit": "de Quantité Normalisée"
+          },
+          "key_values": {
+            "ADiL\nNomenclature douanière.\nPosition tarifaire": "0101.21.00.00",
+            "Situation du": "03/01/2026 00:19:59",
+            "Source": "ADII",
+            "SECTION": "01 - Animaux vivants et produits du règne animal",
+            "CHAPITRE": "01 - Animaux vivants",
+            "DESIGNATION DU PRODUIT": "Codification"
+          },
+          "tables": [],
+          "length": 421
+        },
+        "scraped_at": "2026-01-02T23:20:17.631842",
+        "order": 0
+      },
+      {
+        "section_name": "Version papier",
+        "section_type": "classification",
+        "content": {
+          "raw_text": "ADiL\nNomenclature douanière.\nPosition tarifaire :\n0101.21.00.00\nSituation du :\n03/01/2026 00:19:59\nSource :\nADII\n\nSECTION : 01 - Animaux vivants et produits du règne animal\nCHAPITRE : 01 - Animaux vivants\nDESIGNATION DU PRODUIT :\nCodification\nDésignation du Produit\ndans le Système Harmonisé\nUnité\nde Quantité Normalisée\n01.01\nChevaux, Ã¢nes, mulets et bardots, vivants\n0101.21\n00\n00\n- - Reproducteurs de race pure (a.)\nU",
+          "metadata": {
+            "position": "0101.21.00.00",
+            "source": "ADII",
+            "date": "03/01/2026 00:19:59",
+            "unit": "de Quantité Normalisée"
+          },
+          "key_values": {
+            "ADiL\nNomenclature douanière.\nPosition tarifaire": "0101.21.00.00",
+            "Situation du": "03/01/2026 00:19:59",
+            "Source": "ADII",
+            "SECTION": "01 - Animaux vivants et produits du règne animal",
+            "CHAPITRE": "01 - Animaux vivants",
+            "DESIGNATION DU PRODUIT": "Codification"
+          },
+          "tables": [],
+          "length": 421
+        },
+        "scraped_at": "2026-01-02T23:20:21.592031",
+        "order": 1
+      },
+      {
+        "section_name": "Droits et Taxes",
+        "section_type": "financial",
+        "content": {
+          "raw_text": "ADiL\nDroits et Taxes à l'Import.\nPosition tarifaire :\n0101.21.00.00\nSituation du :\n03/01/2026 00:20:06\nSource :\nADII\n  - Droit d'Importation* ( DI ) : 2.5 %\n- Taxe Parafiscale à l'Importation* ( TPI ) : 0,25 %\n- Taxe sur la Valeur Ajoutée à l'Import. ( TVA ) : 0 %\n** Produit peut bénéficier des avantages de certaines Franchises !",
+          "metadata": {
+            "position": "0101.21.00.00",
+            "source": "ADII",
+            "date": "03/01/2026 00:20:06"
+          },
+          "key_values": {
+            "ADiL\nDroits et Taxes à l'Import.\nPosition tarifaire": "0101.21.00.00",
+            "Situation du": "03/01/2026 00:20:06",
+            "Source": "ADII",
+            "- Droit d'Importation*": "2.5 %",
+            "- Taxe Parafiscale à l'Importation*": "0,25 %",
+            "- Taxe sur la Valeur Ajoutée à l'Import.": "0 %"
+          },
+          "tables": [],
+          "length": 331
+        },
+        "scraped_at": "2026-01-02T23:20:25.837670",
+        "order": 2
+      },
+      {
+        "section_name": "Historique Droit d'Importation",
+        "section_type": "financial",
+        "content": {
+          "raw_text": "ADiL\nHistorique du Droit d'Importation.\nPosition tarifaire :\n0101.21.00.00\nSituation du :\n02/01/2026 23:20:17\nSource :\nADII\n\nGraphique et Tableau :\nTAUX\n2 / 1 / 2015\n0\n2\n4\n\nDate\n02/01/2015\nTaux\n2,5 %",
+          "metadata": {
+            "position": "0101.21.00.00",
+            "source": "ADII",
+            "date": "02/01/2026 23:20:17"
+          },
+          "key_values": {
+            "ADiL\nHistorique du Droit d'Importation.\nPosition tarifaire": "0101.21.00.00",
+            "Situation du": "02/01/2026 23:20:17",
+            "Source": "ADII",
+            "Graphique et Tableau": "TAUX"
+          },
+          "tables": [
+            "2 / 1 / 2015\n0\n2\n4"
+          ],
+          "length": 199
+        },
+        "scraped_at": "2026-01-02T23:21:45.708148",
+        "order": 5
+      },
+      {
+        "section_name": "Importations",
+        "section_type": "statistics",
+        "content": {
+          "raw_text": "ADiL\nVolume annuel d'Importation.\nPosition tarifaire :\n0101.21.00.00\nPériode statistique annuelle :\n2013 au 2024\nIntercom :\nCoût Assurance Fret\nUnité de mesure :\nKGS / Année\nSource :\nOffice des Changes\n\nGraphique et Tableaux :\n\nKGS\n2013\n2014\n2015\n2016\n2017\n2018\n2019\n2020\n2021\n2022\n2024\n0\n100,000\n200,000\n300,000\n\nAnnée\n2013\n2014\n2015\n2016\n2017\n2018\n2019\n2020\n2021\n2022\n2024\nPoids\n0\n0\n221 453\n198 463\n126 906\n200 605\n184 220\n106 430\n106 470\n101 600\n157 900",
+          "metadata": {
+            "position": "0101.21.00.00",
+            "source": "Office des Changes",
+            "period": "statistique annuelle :",
+            "intercom": "Coût Assurance Fret",
+            "unit": "de mesure :"
+          },
+          "key_values": {
+            "ADiL\nVolume annuel d'Importation.\nPosition tarifaire": "0101.21.00.00",
+            "Période statistique annuelle": "2013 au 2024",
+            "Intercom": "Coût Assurance Fret",
+            "Unité de mesure": "KGS / Année",
+            "Source": "Office des Changes",
+            "Graphique et Tableaux": "KGS"
+          },
+          "tables": [
+            "2013\n2014\n2015\n2016\n2017\n2018\n2019\n2020\n2021\n2022\n2024\n0\n100,000\n200,000\n300,000",
+            "2013\n2014\n2015\n2016\n2017\n2018\n2019\n2020\n2021\n2022\n2024"
+          ],
+          "length": 456
+        },
+        "scraped_at": "2026-01-02T23:21:49.632931",
+        "order": 6
+      },
+      {
+        "section_name": "Exportations",
+        "section_type": "statistics",
+        "content": {
+          "raw_text": "ADiL\nVolume annuel d'Exportation.\nPosition tarifaire :\n0101.21.00.00\nPériode statistique annuelle :\n2013 au 2024\nIntercom :\nFranco à Bord\nUnité de mesure :\nKGS / Année\nSource :\nOffice des Changes\n\nGraphique et Tableaux :\nKGS\n2013\n2014\n2015\n2016\n2017\n2018\n2019\n2020\n2021\n2022\n2023\n2024\n0\n20,000\n40,000\n\nAnnée\n2013\n2014\n2015\n2016\n2017\n2018\n2019\n2020\n2021\n2022\n2023\n2024\nPoids\n0\n0\n8 430\n11 750\n17 600\n9 050\n22 900\n11 550\n25 950\n24 400\n37 000\n9 550",
+          "metadata": {
+            "position": "0101.21.00.00",
+            "source": "Office des Changes",
+            "period": "statistique annuelle :",
+            "intercom": "Franco à Bord",
+            "unit": "de mesure :"
+          },
+          "key_values": {
+            "ADiL\nVolume annuel d'Exportation.\nPosition tarifaire": "0101.21.00.00",
+            "Période statistique annuelle": "2013 au 2024",
+            "Intercom": "Franco à Bord",
+            "Unité de mesure": "KGS / Année",
+            "Source": "Office des Changes",
+            "Graphique et Tableaux": "KGS"
+          },
+          "tables": [
+            "2013\n2014\n2015\n2016\n2017\n2018\n2019\n2020\n2021\n2022\n2023\n2024\n0\n20,000\n40,000",
+            "2013\n2014\n2015\n2016\n2017\n2018\n2019\n2020\n2021\n2022\n2023\n2024"
+          ],
+          "length": 444
+        },
+        "scraped_at": "2026-01-02T23:21:53.564908",
+        "order": 7
+      },
+      {
+        "section_name": "Fournisseurs",
+        "section_type": "statistics",
+        "content": {
+          "raw_text": "ADiL\nPrincipaux Pays Fournisseurs.\nPosition tarifaire :\n0101.21.00.00\nPériode statistique :\nJan.2022 au Déc.2022\nIntercom :\nCoût Assurance Fret\nUnité de mesure :\nKGS / PAYS\nSource :\nOffice des Changes\n\nGraphique et Tableau :\nKGS\nFRANCE\nROYAUME-UNI\nBELGIQUE\nPOLOGNE\nESPAGNE\nALLEMAGNE\nETATS-UNIS\n0\n50,000\n100,000\n\nPays\nFRANCE\nROYAUME-UNI\nBELGIQUE\nPOLOGNE\nESPAGNE\nALLEMAGNE\nETATS-UNIS\nPoids\n95 400\n1 500\n1 000\n1 000\n800\n500\n500",
+          "metadata": {
+            "position": "0101.21.00.00",
+            "source": "Office des Changes",
+            "period": "statistique :",
+            "intercom": "Coût Assurance Fret",
+            "unit": "de mesure :"
+          },
+          "key_values": {
+            "ADiL\nPrincipaux Pays Fournisseurs.\nPosition tarifaire": "0101.21.00.00",
+            "Période statistique": "Jan.2022 au Déc.2022",
+            "Intercom": "Coût Assurance Fret",
+            "Unité de mesure": "KGS / PAYS",
+            "Source": "Office des Changes",
+            "Graphique et Tableau": "KGS"
+          },
+          "tables": [],
+          "length": 424
+        },
+        "scraped_at": "2026-01-02T23:21:57.449582",
+        "order": 8
+      },
+      {
+        "section_name": "Clients",
+        "section_type": "statistics",
+        "content": {
+          "raw_text": "ADiL\nPrincipaux Pays Clients.\nPosition tarifaire :\n0101.21.00.00\nPériode statistique :\nJan.2022 au Déc.2022\nIntercom :\nFranco à Bord\nUnité de mesure :\nKGS / PAYS\nSource :\nOffice des Changes\n\nGraphique et Tableau :\nKGS\nSENEGAL\nFRANCE\n11,500\n12,000\n12,500\n13,000\n\nPays\nSENEGAL\nFRANCE\nPoids\n12 700\n11 700",
+          "metadata": {
+            "position": "0101.21.00.00",
+            "source": "Office des Changes",
+            "period": "statistique :",
+            "intercom": "Franco à Bord",
+            "unit": "de mesure :"
+          },
+          "key_values": {
+            "ADiL\nPrincipaux Pays Clients.\nPosition tarifaire": "0101.21.00.00",
+            "Période statistique": "Jan.2022 au Déc.2022",
+            "Intercom": "Franco à Bord",
+            "Unité de mesure": "KGS / PAYS",
+            "Source": "Office des Changes",
+            "Graphique et Tableau": "KGS"
+          },
+          "tables": [],
+          "length": 301
+        },
+        "scraped_at": "2026-01-02T23:22:01.315218",
+        "order": 9
+      },
+      {
+        "section_name": "Nationale",
+        "section_type": "statistics",
+        "content": {
+          "raw_text": "ADiL\nClassification Nationale\ndes Echanges Commerciaux\nPosition tarifaire :\n0101.21.00.00\nSituation du :\n02/01/2026 23:20:36\nSource :\nHaut Comm. du Plan\nNouveau Produit Remarquable :\n- ANIMAUX VIVANTS (ALIMENTATION)\nGroupement d'utilisation :\n 1 - ALIMENTATION, BOISSONS ET TABACS\n  Nomenclature Marocaine des Produits \"NMP\"\nRubrique\nCodification - Libellé\nSection\nA - PRODUITS AGRICOLES ET FORESTIERS\nBranche\n01 - PRODUITS DE LA CULTURE ET DE L'ELEVAGE\nSous Branche\n013 - PRODUITS DE L'ÉLEVAGE\nActivité\n0133 - PRODUITS DE L'ÉLEVAGE D'ÉQUIDÉS\nGroupe de produit\n01331 - EQUIDÉS VIVANTS\nClasse\n013310 - EQUIDÉS VIVANTS\n  Nomenclature de la Comptabilité Nationale \"NCN\"\nRubrique\nCodification - Libellé\nBranche\nA00 - AGRICULTURE, SYLVICULTURE, CHASSE\nSous Branche\nA00002 - ÉLEVAGE, CHASSE, SERVICES ANNEXES\nProduit\nA00002002 - AUTRES ANIMAUX SUR PIEDS N-C VOLAILLES",
+          "metadata": {
+            "position": "0101.21.00.00",
+            "source": "Haut Comm. du Plan",
+            "date": "02/01/2026 23:20:36"
+          },
+          "key_values": {
+            "ADiL\nClassification Nationale\ndes Echanges Commerciaux\nPosition tarifaire": "0101.21.00.00",
+            "Situation du": "02/01/2026 23:20:36",
+            "Source": "Haut Comm. du Plan",
+            "Nouveau Produit Remarquable": "- ANIMAUX VIVANTS (ALIMENTATION)",
+            "Groupement d'utilisation": "1 - ALIMENTATION, BOISSONS ET TABACS"
+          },
+          "tables": [],
+          "length": 861
+        },
+        "scraped_at": "2026-01-02T23:22:05.199141",
+        "order": 10
+      },
+      {
+        "section_name": "Internationale",
+        "section_type": "classification",
+        "content": {
+          "raw_text": "ADiL\nClassification Internationale\ndes Echanges Commerciaux\nPosition tarifaire :\n0101.21.00.00\nSituation du :\n02/01/2026 23:20:40\nSource :\nOffice des Changes\n\nNouveau Produit Remarquable :\n- ANIMAUX VIVANTS (ALIMENTATION)\nGroupement d'utilisation :\n 1 - ALIMENTATION, BOISSONS ET TABACS\n  Classification Type pour le Commerce International \"CTCI\"\nRubrique\nCodification - Libellé\nSection\n0 - PRODUITS ALIMENTAIRES ET ANIMAUX VIVANTS\nDivision\n00 - ANIMAUX VIVANTS AUTRES QUE CEUX FIGURANT DANS LA DIVISION 03\nGroupe\n001 - ANIMAUX VIVANTS AUTRES QU'ANIMAUX DE LA SECTION 03",
+          "metadata": {
+            "position": "0101.21.00.00",
+            "source": "Office des Changes",
+            "date": "02/01/2026 23:20:40"
+          },
+          "key_values": {
+            "ADiL\nClassification Internationale\ndes Echanges Commerciaux\nPosition tarifaire": "0101.21.00.00",
+            "Situation du": "02/01/2026 23:20:40",
+            "Source": "Office des Changes",
+            "Nouveau Produit Remarquable": "- ANIMAUX VIVANTS (ALIMENTATION)",
+            "Groupement d'utilisation": "1 - ALIMENTATION, BOISSONS ET TABACS"
+          },
+          "tables": [],
+          "length": 570
+        },
+        "scraped_at": "2026-01-02T23:22:09.023962",
+        "order": 11
+      }
+    ],
+    "summary": {
+      "total_sections": 10,
+      "successful_sections": 10,
+      "failed_sections": 0,
+      "section_types": {
+        "classification": 3,
+        "financial": 2,
+        "statistics": 5
+      }
+    }
+  }
+]
