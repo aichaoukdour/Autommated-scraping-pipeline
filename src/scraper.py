@@ -1,6 +1,6 @@
 """
-Moroccan Customs ADIL Scraper - Dynamic Data Engineering Approach
-Flexible schema-agnostic design that adapts to any data structure
+Moroccan Customs ADIL Scraper
+Scrapes HS code data from douane.gov.ma with dynamic content detection
 """
 
 import json
@@ -21,16 +21,14 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 class DataProcessor:
-    """Dynamic data processor - adapts to any content structure"""
+    """Extracts structured data from raw text"""
     
     @staticmethod
     def extract_key_value_pairs(text):
-        """Dynamically extract key-value pairs from text"""
         pairs = {}
         pattern = r'([^:]+?)\s*(?:\([^)]*\))?\s*:\s*([^\n]+)'
-        matches = re.findall(pattern, text)
         
-        for key, value in matches:
+        for key, value in re.findall(pattern, text):
             clean_key = key.strip()
             clean_value = value.strip()
             if clean_key and clean_value:
@@ -40,16 +38,15 @@ class DataProcessor:
     
     @staticmethod
     def extract_tables(text):
-        """Detect and extract tabular data dynamically"""
         tables = []
         lines = [l.strip() for l in text.split('\n') if l.strip()]
         year_pattern = r'\b(19|20)\d{2}\b'
-        
         current_table = []
+        
         for line in lines:
             if re.search(year_pattern, line):
                 current_table.append(line)
-            elif current_table and line and any(c.isdigit() for c in line):
+            elif current_table and any(c.isdigit() for c in line):
                 current_table.append(line)
             else:
                 if len(current_table) > 1:
@@ -63,10 +60,10 @@ class DataProcessor:
     
     @staticmethod
     def detect_section_type(section_name, content):
-        """Dynamically classify section based on content patterns"""
         content_lower = content.lower()
         scores = defaultdict(int)
         
+        # Score based on content patterns
         if re.search(r'\d{4}.*\d{4}', content):
             scores['statistics'] += 3
         if re.search(r'\d+[,\s]\d+', content):
@@ -89,7 +86,6 @@ class DataProcessor:
     
     @staticmethod
     def extract_metadata(text):
-        """Extract metadata fields dynamically"""
         metadata = {}
         patterns = {
             'position': r'Position tarifaire\s*:?\s*([^\n]+)',
@@ -114,7 +110,6 @@ class ADILScraper:
     WAIT_TIMEOUT = 10
     
     def __init__(self):
-        """Initialize a browser instance per thread"""
         options = webdriver.ChromeOptions()
         options.add_argument('--headless=new')
         options.add_argument('--no-sandbox')
@@ -128,21 +123,17 @@ class ADILScraper:
         self.wait = WebDriverWait(self.driver, self.WAIT_TIMEOUT)
         self.processor = DataProcessor()
         
+        # Hide webdriver detection
         self.driver.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {
-            'source': '''
-                Object.defineProperty(navigator, 'webdriver', {
-                    get: () => undefined
-                });
-                window.chrome = { runtime: {} };
-            '''
+            'source': 'Object.defineProperty(navigator, "webdriver", {get: () => undefined});'
         })
     
     def scrape_hs_code(self, hs_code):
-        """Scrape data for one HS code - schema-agnostic approach"""
         thread_id = threading.current_thread().name
         print(f"[{thread_id}] Scraping: {hs_code}")
         
         try:
+            # Submit search form
             self.driver.get(self.BASE_URL)
             time.sleep(3)
             
@@ -152,8 +143,7 @@ class ADILScraper:
             print(f"[{thread_id}]   Form submitted")
             time.sleep(4)
             
-            self.driver.switch_to.default_content()
-            
+            # Build result structure
             result = {
                 "hs_code": hs_code,
                 "scraped_at": datetime.now().isoformat(),
@@ -162,9 +152,9 @@ class ADILScraper:
                 "sections": []
             }
             
-            self._extract_main_content(result, thread_id)
-            self._extract_sections(result, thread_id)
-            self._add_summary(result, thread_id)
+            self._scrape_main_content(result, thread_id)
+            self._scrape_all_sections(result, thread_id)
+            self._add_summary_stats(result, thread_id)
             
             return result
             
@@ -177,8 +167,7 @@ class ADILScraper:
                 "error": str(e)
             }
     
-    def _extract_main_content(self, result, thread_id):
-        """Extract main content from frame 2"""
+    def _scrape_main_content(self, result, thread_id):
         try:
             self.driver.switch_to.default_content()
             self.driver.switch_to.frame(2)
@@ -197,26 +186,24 @@ class ADILScraper:
         except Exception as e:
             print(f"[{thread_id}]   ✗ Main content: {e}")
     
-    def _extract_sections(self, result, thread_id):
-        """Discover and extract all sidebar sections dynamically"""
+    def _scrape_all_sections(self, result, thread_id):
         try:
             self.driver.switch_to.default_content()
             self.driver.switch_to.frame(1)
             
             links = self.driver.find_elements(By.TAG_NAME, "a")
-            section_links = self._get_unique_section_links(links)
+            section_links = self._get_section_links(links)
             
             print(f"[{thread_id}]   Found {len(section_links)} sections")
             
             for idx, link_info in enumerate(section_links):
-                self._extract_single_section_with_retry(result, link_info, idx, len(section_links), thread_id)
+                self._scrape_section_with_retry(result, link_info, idx, len(section_links), thread_id)
                 
         except Exception as e:
             print(f"[{thread_id}]   ✗ Sidebar error: {e}")
             result["scrape_status"] = "partial"
     
-    def _get_unique_section_links(self, links):
-        """Extract unique section links, filtering out navigation links"""
+    def _get_section_links(self, links):
         section_links = []
         seen = set()
         skip_keywords = ['nouvelle recherche', 'recherche', 'retour', 'accueil', 'home']
@@ -234,76 +221,86 @@ class ADILScraper:
         
         return section_links
     
-    def _extract_single_section_with_retry(self, result, link_info, idx, total, thread_id):
-        """Extract content from a single section with retry logic"""
+    def _scrape_section_with_retry(self, result, link_info, idx, total, thread_id):
         section_name = link_info["name"]
-        last_error = None
         
         for attempt in range(self.MAX_RETRIES):
             try:
-                self._extract_single_section(result, section_name, idx, total, thread_id)
+                self._scrape_section(result, section_name, idx, total, thread_id)
                 return
-            except (NoSuchElementException, StaleElementReferenceException, TimeoutException) as e:
-                last_error = e
+            except (NoSuchElementException, StaleElementReferenceException, TimeoutException):
                 if attempt < self.MAX_RETRIES - 1:
-                    print(f"[{thread_id}]   ⟳ [{idx+1}/{total}] Retry {attempt+1}/{self.MAX_RETRIES} for {section_name}")
+                    print(f"[{thread_id}]   ⟳ [{idx+1}/{total}] Retry {attempt+1} for {section_name}")
                     time.sleep(2)
                     self.driver.switch_to.default_content()
                 else:
-                    print(f"[{thread_id}]   ⚠ [{idx+1}/{total}] Skipped (not available): {section_name}")
+                    self._add_unavailable_section(result, section_name, idx, thread_id, total)
             except Exception as e:
                 print(f"[{thread_id}]   ✗ [{idx+1}/{total}] Error: {str(e)[:100]}")
                 break
     
-    def _extract_single_section(self, result, section_name, idx, total, thread_id):
-        """Extract content from a single section"""
+    def _scrape_section(self, result, section_name, idx, total, thread_id):
+        # Navigate to section
         self.driver.switch_to.default_content()
         time.sleep(1)
         self.driver.switch_to.frame(1)
         
         xpath = f'//a[normalize-space(text())="{section_name}"]' if "'" in section_name else f"//a[normalize-space(text())='{section_name}']"
-        
         link = self.wait.until(EC.element_to_be_clickable((By.XPATH, xpath)))
         self.driver.execute_script("arguments[0].scrollIntoView(true);", link)
         time.sleep(0.5)
         link.click()
         time.sleep(2)
         
+        # Extract content
         self.driver.switch_to.default_content()
         self.driver.switch_to.frame(2)
-        
         body = self.wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
-        content = body.text.strip()
+        content = body.text.strip() if body.text.strip() and len(body.text.strip()) >= 10 else "N/A"
         
-        if not content or len(content) < 10:
-            content = "N/A"
+        section_data = self._build_section_data(section_name, content, idx)
+        result["sections"].append(section_data)
+        self._log_section(section_name, section_data, idx, total, thread_id)
+    
+    def _build_section_data(self, section_name, content, idx):
+        is_empty = content == "N/A"
         
-        section_data = {
+        return {
             "section_name": section_name,
-            "section_type": self.processor.detect_section_type(section_name, content) if content != "N/A" else "empty",
+            "section_type": "empty" if is_empty else self.processor.detect_section_type(section_name, content),
             "content": {
                 "raw_text": content,
-                "metadata": self.processor.extract_metadata(content) if content != "N/A" else {},
-                "key_values": self.processor.extract_key_value_pairs(content) if content != "N/A" else {},
-                "tables": self.processor.extract_tables(content) if content != "N/A" else [],
+                "metadata": {} if is_empty else self.processor.extract_metadata(content),
+                "key_values": {} if is_empty else self.processor.extract_key_value_pairs(content),
+                "tables": [] if is_empty else self.processor.extract_tables(content),
                 "length": len(content)
             },
             "scraped_at": datetime.now().isoformat(),
             "order": idx
         }
-        
-        result["sections"].append(section_data)
-        
-        kv_count = len(section_data["content"]["key_values"])
-        table_count = len(section_data["content"]["tables"])
-        
-        status = "N/A" if content == "N/A" else "✓"
-        print(f"[{thread_id}]   {status} [{idx+1}/{total}] {section_name}")
-        if content != "N/A":
-            print(f"[{thread_id}]      Type: {section_data['section_type']} | KV pairs: {kv_count} | Tables: {table_count}")
     
-    def _add_summary(self, result, thread_id):
-        """Add summary statistics to result"""
+    def _add_unavailable_section(self, result, section_name, idx, thread_id, total):
+        result["sections"].append({
+            "section_name": section_name,
+            "section_type": "unavailable",
+            "content": {"raw_text": "N/A", "metadata": {}, "key_values": {}, "tables": [], "length": 0},
+            "scraped_at": datetime.now().isoformat(),
+            "order": idx,
+            "status": "not_available"
+        })
+        print(f"[{thread_id}]   N/A [{idx+1}/{total}] {section_name}")
+    
+    def _log_section(self, section_name, section_data, idx, total, thread_id):
+        is_na = section_data["content"]["raw_text"] == "N/A"
+        status = "N/A" if is_na else "✓"
+        print(f"[{thread_id}]   {status} [{idx+1}/{total}] {section_name}")
+        
+        if not is_na:
+            kv_count = len(section_data["content"]["key_values"])
+            table_count = len(section_data["content"]["tables"])
+            print(f"[{thread_id}]      Type: {section_data['section_type']} | KV: {kv_count} | Tables: {table_count}")
+    
+    def _add_summary_stats(self, result, thread_id):
         result["summary"] = {
             "total_sections": len(result["sections"]),
             "successful_sections": sum(1 for s in result["sections"] if "error" not in s),
@@ -320,12 +317,10 @@ class ADILScraper:
         print(f"[{thread_id}]   Types: {result['summary']['section_types']}")
     
     def close(self):
-        """Close the browser"""
         self.driver.quit()
 
 
 def scrape_single_code(hs_code):
-    """Worker function - creates scraper instance per code"""
     scraper = ADILScraper()
     try:
         return scraper.scrape_hs_code(hs_code)
@@ -333,22 +328,20 @@ def scrape_single_code(hs_code):
         scraper.close()
 
 
-def process_csv_parallel(csv_path, max_workers=3, limit=None):
-    """Process CSV with parallel workers"""
-    hs_codes = _read_hs_codes(csv_path, limit)
+def process_csv(csv_path, max_workers=3, limit=None):
+    hs_codes = _read_codes_from_csv(csv_path, limit)
     
     print(f"\n{'='*60}")
     print(f"Processing {len(hs_codes)} HS codes with {max_workers} workers")
     print(f"{'='*60}\n")
     
-    results = _execute_parallel_scraping(hs_codes, max_workers)
+    results = _run_parallel_scraping(hs_codes, max_workers)
     _save_results(results, max_workers)
     
     return results
 
 
-def _read_hs_codes(csv_path, limit):
-    """Read HS codes from CSV file"""
+def _read_codes_from_csv(csv_path, limit):
     hs_codes = []
     with open(csv_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
@@ -359,8 +352,7 @@ def _read_hs_codes(csv_path, limit):
     return hs_codes
 
 
-def _execute_parallel_scraping(hs_codes, max_workers):
-    """Execute parallel scraping with thread pool"""
+def _run_parallel_scraping(hs_codes, max_workers):
     results = []
     
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
@@ -381,19 +373,25 @@ def _execute_parallel_scraping(hs_codes, max_workers):
 
 
 def _save_results(results, max_workers):
-    """Save detailed and summary results"""
     with open("adil_detailed.json", 'w', encoding='utf-8') as f:
         json.dump(results, f, ensure_ascii=False, indent=2)
     
-    summary = _generate_summary(results, max_workers)
+    summary = _build_summary(results, max_workers)
     
     with open("adil_summary.json", 'w', encoding='utf-8') as f:
         json.dump(summary, f, ensure_ascii=False, indent=2)
 
 
-def _generate_summary(results, max_workers):
-    """Generate analytics summary"""
-    summary = {
+def _build_summary(results, max_workers):
+    total_sections = sum(r.get("summary", {}).get("total_sections", 0) for r in results)
+    section_types = defaultdict(int)
+    
+    for result in results:
+        if "summary" in result and "section_types" in result["summary"]:
+            for stype, count in result["summary"]["section_types"].items():
+                section_types[stype] += count
+    
+    return {
         "pipeline_metadata": {
             "run_timestamp": datetime.now().isoformat(),
             "total_codes_processed": len(results),
@@ -404,27 +402,12 @@ def _generate_summary(results, max_workers):
             "partial": sum(1 for r in results if r.get("scrape_status") == "partial"),
             "error": sum(1 for r in results if r.get("scrape_status") == "error")
         },
-        "section_analytics": _generate_section_analytics(results),
+        "section_analytics": {
+            "total_sections_scraped": total_sections,
+            "avg_sections_per_code": round(total_sections / len(results), 2) if results else 0,
+            "section_type_distribution": dict(section_types)
+        },
         "results": results
-    }
-    
-    return summary
-
-
-def _generate_section_analytics(results):
-    """Generate section analytics from results"""
-    total_sections = sum(r.get("summary", {}).get("total_sections", 0) for r in results)
-    section_type_distribution = defaultdict(int)
-    
-    for result in results:
-        if "summary" in result and "section_types" in result["summary"]:
-            for stype, count in result["summary"]["section_types"].items():
-                section_type_distribution[stype] += count
-    
-    return {
-        "total_sections_scraped": total_sections,
-        "avg_sections_per_code": round(total_sections / len(results), 2) if results else 0,
-        "section_type_distribution": dict(section_type_distribution)
     }
 
 
@@ -437,7 +420,7 @@ if __name__ == "__main__":
     for path in csv_paths:
         if os.path.exists(path):
             print(f"Found CSV: {path}")
-            process_csv_parallel(path, max_workers=MAX_WORKERS, limit=LIMIT)
+            process_csv(path, max_workers=MAX_WORKERS, limit=LIMIT)
             break
     else:
         print("Error: CSV file not found!")
