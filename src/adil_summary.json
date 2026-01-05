@@ -1,6 +1,6 @@
-{
+
   "pipeline_metadata": {
-    "run_timestamp": "2026-01-03T12:28:05.343684",
+    "run_timestamp": "2026-01-05T18:07:37.923613",
     "total_codes_processed": 1,
     "max_workers": 1
   },
@@ -22,7 +22,7 @@
   "results": [
     {
       "hs_code": "0101210000",
-      "scraped_at": "2026-01-03T12:24:54.064387",
+      "scraped_at": "2026-01-05T18:04:23.027376",
       "scrape_status": "success",
       "main_content": {
         "raw_text": "ADiL\n \nVous êtes au niveau de la position tarifaire :\n\n0101.21.00.00\n\n \n\nDescription du Produit Remarquable :\n( Source : Office des Changes )\n\nAnimaux vivants (alimentation)\n\n* * * * * * *\n\nEntrée en vigueur le : vendredi 2 janvier 2015",
@@ -42,16 +42,16 @@
           "section_name": "Position tarifaire",
           "section_type": "classification",
           "content": {
-            "raw_text": "ADiL\nNomenclature douanière.\nPosition tarifaire :\n0101.21.00.00\nSituation du :\n03/01/2026 12:23:29\nSource :\nADII\n\nSECTION : 01 - Animaux vivants et produits du règne animal\nCHAPITRE : 01 - Animaux vivants\nDESIGNATION DU PRODUIT :\nCodification\nDésignation du Produit\ndans le Système Harmonisé\nUnité\nde Quantité Normalisée\n01.01\nChevaux, Ã¢nes, mulets et bardots, vivants\n0101.21\n00\n00\n- - Reproducteurs de race pure (a.)\nU",
+            "raw_text": "ADiL\nNomenclature douanière.\nPosition tarifaire :\n0101.21.00.00\nSituation du :\n05/01/2026 18:02:58\nSource :\nADII\n\nSECTION : 01 - Animaux vivants et produits du règne animal\nCHAPITRE : 01 - Animaux vivants\nDESIGNATION DU PRODUIT :\nCodification\nDésignation du Produit\ndans le Système Harmonisé\nUnité\nde Quantité Normalisée\n01.01\nChevaux, Ã¢nes, mulets et bardots, vivants\n0101.21\n00\n00\n- - Reproducteurs de race pure (a.)\nU",
             "metadata": {
               "position": "0101.21.00.00",
               "source": "ADII",
-              "date": "03/01/2026 12:23:29",
+              "date": "05/01/2026 18:02:58",
               "unit": "de Quantité Normalisée"
             },
             "key_values": {
               "ADiL\nNomenclature douanière.\nPosition tarifaire": "0101.21.00.00",
-              "Situation du": "03/01/2026 12:23:29",
+              "Situation du": "05/01/2026 18:02:58",
               "Source": "ADII",
               "SECTION": "01 - Animaux vivants et produits du règne animal",
               "CHAPITRE": "01 - Animaux vivants",
@@ -60,23 +60,23 @@
             "tables": [],
             "length": 421
           },
-          "scraped_at": "2026-01-03T12:24:57.968106",
+          "scraped_at": "2026-01-05T18:04:27.747354",
           "order": 0
         },
         {
           "section_name": "Version papier",
           "section_type": "classification",
           "content": {
-            "raw_text": "ADiL\nNomenclature douanière.\nPosition tarifaire :\n0101.21.00.00\nSituation du :\n03/01/2026 12:23:29\nSource :\nADII\n\nSECTION : 01 - Animaux vivants et produits du règne animal\nCHAPITRE : 01 - Animaux vivants\nDESIGNATION DU PRODUIT :\nCodification\nDésignation du Produit\ndans le Système Harmonisé\nUnité\nde Quantité Normalisée\n01.01\nChevaux, Ã¢nes, mulets et bardots, vivants\n0101.21\n00\n00\n- - Reproducteurs de race pure (a.)\nU",
+            "raw_text": "ADiL\nNomenclature douanière.\nPosition tarifaire :\n0101.21.00.00\nSituation du :\n05/01/2026 18:02:58\nSource :\nADII\n\nSECTION : 01 - Animaux vivants et produits du règne animal\nCHAPITRE : 01 - Animaux vivants\nDESIGNATION DU PRODUIT :\nCodification\nDésignation du Produit\ndans le Système Harmonisé\nUnité\nde Quantité Normalisée\n01.01\nChevaux, Ã¢nes, mulets et bardots, vivants\n0101.21\n00\n00\n- - Reproducteurs de race pure (a.)\nU",
             "metadata": {
               "position": "0101.21.00.00",
               "source": "ADII",
-              "date": "03/01/2026 12:23:29",
+              "date": "05/01/2026 18:02:58",
               "unit": "de Quantité Normalisée"
             },
             "key_values": {
               "ADiL\nNomenclature douanière.\nPosition tarifaire": "0101.21.00.00",
-              "Situation du": "03/01/2026 12:23:29",
+              "Situation du": "05/01/2026 18:02:58",
               "Source": "ADII",
               "SECTION": "01 - Animaux vivants et produits du règne animal",
               "CHAPITRE": "01 - Animaux vivants",
@@ -85,22 +85,22 @@
             "tables": [],
             "length": 421
           },
-          "scraped_at": "2026-01-03T12:25:01.618585",
+          "scraped_at": "2026-01-05T18:04:31.690143",
           "order": 1
         },
         {
           "section_name": "Droits et Taxes",
           "section_type": "financial",
           "content": {
-            "raw_text": "ADiL\nDroits et Taxes à l'Import.\nPosition tarifaire :\n0101.21.00.00\nSituation du :\n03/01/2026 12:23:36\nSource :\nADII\n  - Droit d'Importation* ( DI ) : 2.5 %\n- Taxe Parafiscale à l'Importation* ( TPI ) : 0,25 %\n- Taxe sur la Valeur Ajoutée à l'Import. ( TVA ) : 0 %\n** Produit peut bénéficier des avantages de certaines Franchises !",
+            "raw_text": "ADiL\nDroits et Taxes à l'Import.\nPosition tarifaire :\n0101.21.00.00\nSituation du :\n05/01/2026 18:03:06\nSource :\nADII\n  - Droit d'Importation* ( DI ) : 2.5 %\n- Taxe Parafiscale à l'Importation* ( TPI ) : 0,25 %\n- Taxe sur la Valeur Ajoutée à l'Import. ( TVA ) : 0 %\n** Produit peut bénéficier des avantages de certaines Franchises !",
             "metadata": {
               "position": "0101.21.00.00",
               "source": "ADII",
-              "date": "03/01/2026 12:23:36"
+              "date": "05/01/2026 18:03:06"
             },
             "key_values": {
               "ADiL\nDroits et Taxes à l'Import.\nPosition tarifaire": "0101.21.00.00",
-              "Situation du": "03/01/2026 12:23:36",
+              "Situation du": "05/01/2026 18:03:06",
               "Source": "ADII",
               "- Droit d'Importation*": "2.5 %",
               "- Taxe Parafiscale à l'Importation*": "0,25 %",
@@ -109,7 +109,7 @@
             "tables": [],
             "length": 331
           },
-          "scraped_at": "2026-01-03T12:25:07.588979",
+          "scraped_at": "2026-01-05T18:04:35.609796",
           "order": 2
         },
         {
@@ -122,7 +122,7 @@
             "tables": [],
             "length": 0
           },
-          "scraped_at": "2026-01-03T12:25:45.042156",
+          "scraped_at": "2026-01-05T18:05:13.604656",
           "order": 3,
           "status": "not_available"
         },
@@ -136,7 +136,7 @@
             "tables": [],
             "length": 0
           },
-          "scraped_at": "2026-01-03T12:26:22.503569",
+          "scraped_at": "2026-01-05T18:05:51.602157",
           "order": 4,
           "status": "not_available"
         },
@@ -144,15 +144,15 @@
           "section_name": "Historique Droit d'Importation",
           "section_type": "financial",
           "content": {
-            "raw_text": "ADiL\nHistorique du Droit d'Importation.\nPosition tarifaire :\n0101.21.00.00\nSituation du :\n03/01/2026 12:24:57\nSource :\nADII\n\nGraphique et Tableau :\nTAUX\n2 / 1 / 2015\n0\n2\n4\n\nDate\n02/01/2015\nTaux\n2,5 %",
+            "raw_text": "ADiL\nHistorique du Droit d'Importation.\nPosition tarifaire :\n0101.21.00.00\nSituation du :\n05/01/2026 18:04:26\nSource :\nADII\n\nGraphique et Tableau :\nTAUX\n2 / 1 / 2015\n0\n2\n4\n\nDate\n02/01/2015\nTaux\n2,5 %",
             "metadata": {
               "position": "0101.21.00.00",
               "source": "ADII",
-              "date": "03/01/2026 12:24:57"
+              "date": "05/01/2026 18:04:26"
             },
             "key_values": {
               "ADiL\nHistorique du Droit d'Importation.\nPosition tarifaire": "0101.21.00.00",
-              "Situation du": "03/01/2026 12:24:57",
+              "Situation du": "05/01/2026 18:04:26",
               "Source": "ADII",
               "Graphique et Tableau": "TAUX"
             },
@@ -161,7 +161,7 @@
             ],
             "length": 199
           },
-          "scraped_at": "2026-01-03T12:26:26.167997",
+          "scraped_at": "2026-01-05T18:05:55.529165",
           "order": 5
         },
         {
@@ -190,7 +190,7 @@
             ],
             "length": 456
           },
-          "scraped_at": "2026-01-03T12:26:29.872811",
+          "scraped_at": "2026-01-05T18:05:59.583764",
           "order": 6
         },
         {
@@ -219,7 +219,7 @@
             ],
             "length": 444
           },
-          "scraped_at": "2026-01-03T12:26:33.587949",
+          "scraped_at": "2026-01-05T18:06:03.609741",
           "order": 7
         },
         {
@@ -245,7 +245,7 @@
             "tables": [],
             "length": 424
           },
-          "scraped_at": "2026-01-03T12:26:37.279128",
+          "scraped_at": "2026-01-05T18:06:07.610087",
           "order": 8
         },
         {
@@ -271,22 +271,22 @@
             "tables": [],
             "length": 301
           },
-          "scraped_at": "2026-01-03T12:26:40.946297",
+          "scraped_at": "2026-01-05T18:06:11.578849",
           "order": 9
         },
         {
           "section_name": "Nationale",
           "section_type": "statistics",
           "content": {
-            "raw_text": "ADiL\nClassification Nationale\ndes Echanges Commerciaux\nPosition tarifaire :\n0101.21.00.00\nSituation du :\n03/01/2026 12:25:15\nSource :\nHaut Comm. du Plan\nNouveau Produit Remarquable :\n- ANIMAUX VIVANTS (ALIMENTATION)\nGroupement d'utilisation :\n 1 - ALIMENTATION, BOISSONS ET TABACS\n  Nomenclature Marocaine des Produits \"NMP\"\nRubrique\nCodification - Libellé\nSection\nA - PRODUITS AGRICOLES ET FORESTIERS\nBranche\n01 - PRODUITS DE LA CULTURE ET DE L'ELEVAGE\nSous Branche\n013 - PRODUITS DE L'ÉLEVAGE\nActivité\n0133 - PRODUITS DE L'ÉLEVAGE D'ÉQUIDÉS\nGroupe de produit\n01331 - EQUIDÉS VIVANTS\nClasse\n013310 - EQUIDÉS VIVANTS\n  Nomenclature de la Comptabilité Nationale \"NCN\"\nRubrique\nCodification - Libellé\nBranche\nA00 - AGRICULTURE, SYLVICULTURE, CHASSE\nSous Branche\nA00002 - ÉLEVAGE, CHASSE, SERVICES ANNEXES\nProduit\nA00002002 - AUTRES ANIMAUX SUR PIEDS N-C VOLAILLES",
+            "raw_text": "ADiL\nClassification Nationale\ndes Echanges Commerciaux\nPosition tarifaire :\n0101.21.00.00\nSituation du :\n05/01/2026 18:04:46\nSource :\nHaut Comm. du Plan\nNouveau Produit Remarquable :\n- ANIMAUX VIVANTS (ALIMENTATION)\nGroupement d'utilisation :\n 1 - ALIMENTATION, BOISSONS ET TABACS\n  Nomenclature Marocaine des Produits \"NMP\"\nRubrique\nCodification - Libellé\nSection\nA - PRODUITS AGRICOLES ET FORESTIERS\nBranche\n01 - PRODUITS DE LA CULTURE ET DE L'ELEVAGE\nSous Branche\n013 - PRODUITS DE L'ÉLEVAGE\nActivité\n0133 - PRODUITS DE L'ÉLEVAGE D'ÉQUIDÉS\nGroupe de produit\n01331 - EQUIDÉS VIVANTS\nClasse\n013310 - EQUIDÉS VIVANTS\n  Nomenclature de la Comptabilité Nationale \"NCN\"\nRubrique\nCodification - Libellé\nBranche\nA00 - AGRICULTURE, SYLVICULTURE, CHASSE\nSous Branche\nA00002 - ÉLEVAGE, CHASSE, SERVICES ANNEXES\nProduit\nA00002002 - AUTRES ANIMAUX SUR PIEDS N-C VOLAILLES",
             "metadata": {
               "position": "0101.21.00.00",
               "source": "Haut Comm. du Plan",
-              "date": "03/01/2026 12:25:15"
+              "date": "05/01/2026 18:04:46"
             },
             "key_values": {
               "ADiL\nClassification Nationale\ndes Echanges Commerciaux\nPosition tarifaire": "0101.21.00.00",
-              "Situation du": "03/01/2026 12:25:15",
+              "Situation du": "05/01/2026 18:04:46",
               "Source": "Haut Comm. du Plan",
               "Nouveau Produit Remarquable": "- ANIMAUX VIVANTS (ALIMENTATION)",
               "Groupement d'utilisation": "1 - ALIMENTATION, BOISSONS ET TABACS"
@@ -294,22 +294,22 @@
             "tables": [],
             "length": 861
           },
-          "scraped_at": "2026-01-03T12:26:44.651814",
+          "scraped_at": "2026-01-05T18:06:15.592768",
           "order": 10
         },
         {
           "section_name": "Internationale",
           "section_type": "classification",
           "content": {
-            "raw_text": "ADiL\nClassification Internationale\ndes Echanges Commerciaux\nPosition tarifaire :\n0101.21.00.00\nSituation du :\n03/01/2026 12:25:19\nSource :\nOffice des Changes\n\nNouveau Produit Remarquable :\n- ANIMAUX VIVANTS (ALIMENTATION)\nGroupement d'utilisation :\n 1 - ALIMENTATION, BOISSONS ET TABACS\n  Classification Type pour le Commerce International \"CTCI\"\nRubrique\nCodification - Libellé\nSection\n0 - PRODUITS ALIMENTAIRES ET ANIMAUX VIVANTS\nDivision\n00 - ANIMAUX VIVANTS AUTRES QUE CEUX FIGURANT DANS LA DIVISION 03\nGroupe\n001 - ANIMAUX VIVANTS AUTRES QU'ANIMAUX DE LA SECTION 03",
+            "raw_text": "ADiL\nClassification Internationale\ndes Echanges Commerciaux\nPosition tarifaire :\n0101.21.00.00\nSituation du :\n05/01/2026 18:04:50\nSource :\nOffice des Changes\n\nNouveau Produit Remarquable :\n- ANIMAUX VIVANTS (ALIMENTATION)\nGroupement d'utilisation :\n 1 - ALIMENTATION, BOISSONS ET TABACS\n  Classification Type pour le Commerce International \"CTCI\"\nRubrique\nCodification - Libellé\nSection\n0 - PRODUITS ALIMENTAIRES ET ANIMAUX VIVANTS\nDivision\n00 - ANIMAUX VIVANTS AUTRES QUE CEUX FIGURANT DANS LA DIVISION 03\nGroupe\n001 - ANIMAUX VIVANTS AUTRES QU'ANIMAUX DE LA SECTION 03",
             "metadata": {
               "position": "0101.21.00.00",
               "source": "Office des Changes",
-              "date": "03/01/2026 12:25:19"
+              "date": "05/01/2026 18:04:50"
             },
             "key_values": {
               "ADiL\nClassification Internationale\ndes Echanges Commerciaux\nPosition tarifaire": "0101.21.00.00",
-              "Situation du": "03/01/2026 12:25:19",
+              "Situation du": "05/01/2026 18:04:50",
               "Source": "Office des Changes",
               "Nouveau Produit Remarquable": "- ANIMAUX VIVANTS (ALIMENTATION)",
               "Groupement d'utilisation": "1 - ALIMENTATION, BOISSONS ET TABACS"
@@ -317,7 +317,7 @@
             "tables": [],
             "length": 570
           },
-          "scraped_at": "2026-01-03T12:26:48.316729",
+          "scraped_at": "2026-01-05T18:06:19.547224",
           "order": 11
         },
         {
@@ -330,7 +330,7 @@
             "tables": [],
             "length": 0
           },
-          "scraped_at": "2026-01-03T12:27:25.780555",
+          "scraped_at": "2026-01-05T18:06:57.609335",
           "order": 12,
           "status": "not_available"
         },
@@ -344,7 +344,7 @@
             "tables": [],
             "length": 0
           },
-          "scraped_at": "2026-01-03T12:28:03.240947",
+          "scraped_at": "2026-01-05T18:07:35.620699",
           "order": 13,
           "status": "not_available"
         }
