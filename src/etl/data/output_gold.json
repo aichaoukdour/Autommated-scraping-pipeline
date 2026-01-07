@@ -1,0 +1,124 @@
+{
+  "hs_code": "0101210000",
+  "snapshot_date": "2026-01-05",
+  "section_name": "01 - Animaux vivants et produits du règne animal",
+  "chapter_name": "01 - Animaux vivants",
+  "parent_category": null,
+  "sub_category": null,
+  "product_name": null,
+  "product_designation": "adil\nnomenclature douanière.\nposition tarifaire :\n0101.21.00.00\nsituation du :\n05/01/2026 18:02:58\nsource :\nadii\nsection : 01 - animaux vivants et produits du règne animal\nchapitre : 01 - animaux vivants\ndesignation du produit :\ncodification\ndésignation du produit\ndans le système harmonisé\nunité\nde quantité normalisée\n01.01\nchevaux, ânes, mulets et bardots, vivants\n0101.21\n00\n00\n- - reproducteurs de race pure (a.)\nu",
+  "unit_of_measure": null,
+  "import_duty_rate": 2.5,
+  "parafiscal_tax_rate": 0.25,
+  "vat_rate": 0.0,
+  "import_volume_total_kg": 1404047.0,
+  "export_volume_total_kg": 178180.0,
+  "import_history": [
+    {
+      "year": 0,
+      "weight_kg": 221453.0
+    },
+    {
+      "year": 0,
+      "weight_kg": 198463.0
+    },
+    {
+      "year": 0,
+      "weight_kg": 126906.0
+    },
+    {
+      "year": 0,
+      "weight_kg": 200605.0
+    },
+    {
+      "year": 0,
+      "weight_kg": 184220.0
+    },
+    {
+      "year": 0,
+      "weight_kg": 106430.0
+    },
+    {
+      "year": 0,
+      "weight_kg": 106470.0
+    },
+    {
+      "year": 0,
+      "weight_kg": 101600.0
+    },
+    {
+      "year": 0,
+      "weight_kg": 157900.0
+    }
+  ],
+  "export_history": [
+    {
+      "year": 0,
+      "weight_kg": 8430.0
+    },
+    {
+      "year": 0,
+      "weight_kg": 11750.0
+    },
+    {
+      "year": 0,
+      "weight_kg": 17600.0
+    },
+    {
+      "year": 0,
+      "weight_kg": 9050.0
+    },
+    {
+      "year": 0,
+      "weight_kg": 22900.0
+    },
+    {
+      "year": 0,
+      "weight_kg": 11550.0
+    },
+    {
+      "year": 0,
+      "weight_kg": 25950.0
+    },
+    {
+      "year": 0,
+      "weight_kg": 24400.0
+    },
+    {
+      "year": 0,
+      "weight_kg": 37000.0
+    },
+    {
+      "year": 0,
+      "weight_kg": 9550.0
+    }
+  ],
+  "import_duty_history": [
+    {
+      "date": "2015-01-02",
+      "rate": 2.5
+    }
+  ],
+  "top_supplier_countries": [
+    "ADiL\nPrincipaux Pays Fournisseurs.\nPosition tarifaire",
+    "Période statistique",
+    "Intercom",
+    "Unité de mesure",
+    "Source",
+    "Graphique et Tableau"
+  ],
+  "top_client_countries": [
+    "ADiL\nPrincipaux Pays Clients.\nPosition tarifaire",
+    "Période statistique",
+    "Intercom",
+    "Unité de mesure",
+    "Source",
+    "Graphique et Tableau"
+  ],
+  "legal_text": null,
+  "national_classification_text": "adil\nclassification nationale\ndes echanges commerciaux\nposition tarifaire :\n0101.21.00.00\nsituation du :\n05/01/2026 18:04:46\nsource :\nhaut comm. du plan\nnouveau produit remarquable :\n- animaux vivants (alimentation)\ngroupement d'utilisation :\n1 - alimentation, boissons et tabacs\nnomenclature marocaine des produits \"nmp\"\nrubrique\ncodification - libellé\nsection\na - produits agricoles et forestiers\nbranche\n01 - produits de la culture et de l'elevage\nsous branche\n013 - produits de l'élevage\nactivité\n0133 - produits de l'élevage d'équidés\ngroupe de produit\n01331 - equidés vivants\nclasse\n013310 - equidés vivants\nnomenclature de la comptabilité nationale \"ncn\"\nrubrique\ncodification - libellé\nbranche\na00 - agriculture, sylviculture, chasse\nsous branche\na00002 - élevage, chasse, services annexes\nproduit\na00002002 - autres animaux sur pieds n-c volailles",
+  "international_classification_text": "adil\nclassification internationale\ndes echanges commerciaux\nposition tarifaire :\n0101.21.00.00\nsituation du :\n05/01/2026 18:04:50\nsource :\noffice des changes\nnouveau produit remarquable :\n- animaux vivants (alimentation)\ngroupement d'utilisation :\n1 - alimentation, boissons et tabacs\nclassification type pour le commerce international \"ctci\"\nrubrique\ncodification - libellé\nsection\n0 - produits alimentaires et animaux vivants\ndivision\n00 - animaux vivants autres que ceux figurant dans la division 03\ngroupe\n001 - animaux vivants autres qu'animaux de la section 03",
+  "sources": [
+    "Office des Changes )"
+  ]
+}
