@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 
 
 class ImportExportHistory(BaseModel):
@@ -18,8 +18,10 @@ class HSCodeGold(BaseModel):
 
     section_name: Optional[str]
     chapter_name: Optional[str]
-    parent_category: Optional[str]
-    sub_category: Optional[str]
+
+    parent_category: Optional[str]      # 4-digit
+    sub_category: Optional[str]         # 6-digit
+
     product_name: Optional[str]
     product_designation: Optional[str]
     unit_of_measure: Optional[str]

@@ -1,6 +1,57 @@
-from cleaners import clean_text_block, parse_percentage, parse_french_date
-from schemas import HSCodeGold
+import re
+from ftfy import fix_text
 from datetime import datetime
+
+from cleaners import clean_text_block, parse_percentage
+from schemas import HSCodeGold
+
+
+def parse_hs_hierarchy(raw_text: str, hs_code: str) -> dict:
+    """
+    Parse HS hierarchy dynamically (4 / 6 / 8 / 10 digits).
+    Missing levels are filled with 'NA'.
+    """
+    text = fix_text(raw_text)
+    lines = [l.strip() for l in text.splitlines() if l.strip()]
+
+    result = {
+        "parent_category": "NA",
+        "sub_category": "NA",
+        "product_name": "NA",
+        "unit": None,
+    }
+
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+
+        # ---- 4 DIGIT (01.01) ----
+        if re.fullmatch(r"\d{2}\.\d{2}", line):
+            result["parent_category"] = line.replace(".", "")
+            i += 2
+            continue
+
+        # ---- 6 DIGIT (0101.21) ----
+        if re.fullmatch(r"\d{4}\.\d{2}", line):
+            result["sub_category"] = line.replace(".", "")
+            i += 1
+            continue
+
+        # ---- PRODUCT DESIGNATION (10-digit) ----
+        if line.startswith("-"):
+            result["product_name"] = line.lstrip("- ").strip()
+            i += 1
+            continue
+
+        # ---- UNIT ----
+        if line.isalpha() and len(line) <= 3:
+            result["unit"] = line
+            i += 1
+            continue
+
+        i += 1
+
+    return result
 
 
 def transform(raw: dict) -> dict:
@@ -16,11 +67,11 @@ def transform(raw: dict) -> dict:
     suppliers = []
     clients = []
 
-    classification_text = []
     national_text = None
     international_text = None
 
-    section_name = chapter_name = parent_category = sub_category = None
+    section_name = chapter_name = None
+    parent_category = sub_category = None
     product_name = product_designation = unit = None
     legal_text = None
 
@@ -28,14 +79,20 @@ def transform(raw: dict) -> dict:
         name = s["section_name"]
         content = s["content"]
 
-        # ---- CLASSIFICATION ----
+        # ---- POSITION TARIFAIRE ----
         if name in ["Position tarifaire", "Version papier"]:
-            text = clean_text_block(content["raw_text"])
-            classification_text.append(text)
+            raw_text = content["raw_text"]
+            product_designation = clean_text_block(raw_text)
 
             section_name = content["key_values"].get("SECTION")
             chapter_name = content["key_values"].get("CHAPITRE")
-            product_designation = text
+
+            hs_parts = parse_hs_hierarchy(raw_text, hs_code)
+
+            parent_category = hs_parts["parent_category"]
+            sub_category = hs_parts["sub_category"]
+            product_name = hs_parts["product_name"]
+            unit = hs_parts["unit"]
 
         # ---- TAXES ----
         elif name == "Droits et Taxes":
@@ -44,46 +101,40 @@ def transform(raw: dict) -> dict:
             taxes["parafiscal_tax_rate"] = parse_percentage(kv.get("- Taxe Parafiscale à l'Importation*"))
             taxes["vat_rate"] = parse_percentage(kv.get("- Taxe sur la Valeur Ajoutée à l'Import."))
 
-        # ---- DUTY HISTORY ----
-        elif name == "Historique Droit d'Importation":
-            duty_history.append({
-                "date": "2015-01-02",
-                "rate": 2.5
-            })
-
-        # ---- IMPORTS ----
+        # ---- IMPORT HISTORY ----
         elif name == "Importations":
-            lines = content["raw_text"].splitlines()
-            for l in lines:
-                if l.strip().isdigit():
-                    year = int(l.strip())
-                elif " " in l and l.strip().replace(" ", "").isdigit():
+            year = None
+            for l in content["raw_text"].splitlines():
+                l = l.strip()
+                if l.isdigit():
+                    year = int(l)
+                elif year and l.replace(" ", "").isdigit():
                     import_history.append({
                         "year": year,
                         "weight_kg": float(l.replace(" ", ""))
                     })
 
-        # ---- EXPORTS ----
+        # ---- EXPORT HISTORY ----
         elif name == "Exportations":
-            lines = content["raw_text"].splitlines()
-            for l in lines:
-                if l.strip().isdigit():
-                    year = int(l.strip())
-                elif " " in l and l.strip().replace(" ", "").isdigit():
+            year = None
+            for l in content["raw_text"].splitlines():
+                l = l.strip()
+                if l.isdigit():
+                    year = int(l)
+                elif year and l.replace(" ", "").isdigit():
                     export_history.append({
                         "year": year,
                         "weight_kg": float(l.replace(" ", ""))
                     })
 
-        # ---- SUPPLIERS ----
+        # ---- SUPPLIERS / CLIENTS ----
         elif name == "Fournisseurs":
             suppliers = list(content["key_values"].keys())
 
-        # ---- CLIENTS ----
         elif name == "Clients":
             clients = list(content["key_values"].keys())
 
-        # ---- NATIONAL / INTERNATIONAL ----
+        # ---- CLASSIFICATIONS ----
         elif name == "Nationale":
             national_text = clean_text_block(content["raw_text"])
 
