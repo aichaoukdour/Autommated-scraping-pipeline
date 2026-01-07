@@ -1,41 +1,29 @@
 {
-  "hs_code": "0101210000",
+  "hs_code": "0101291000",
   "snapshot_date": "2026-01-07",
   "section_name": "01 - Animaux vivants et produits du règne animal",
   "chapter_name": "01 - Animaux vivants",
   "parent_category": "0101",
-  "sub_category": "010121",
-  "product_name": "Reproducteurs de race pure (a.)",
-  "product_designation": "ADiL Nomenclature douanière. Position tarifaire : 0101.21.00.00 Situation du : 07/01/2026 21:11:54 Source : ADII SECTION : 01 - Animaux vivants et produits du règne animal CHAPITRE : 01 - Animaux vivants DESIGNATION DU PRODUIT : Codification Désignation du Produit dans le Système Harmonisé Unité de Quantité Normalisée 01.01 Chevaux, ânes, mulets et bardots, vivants 0101.21 00 00 - - Reproducteurs de race pure (a.) U",
+  "sub_category": "010129",
+  "product_name": "destinés à la boucherie",
+  "product_designation": "ADiL Nomenclature douanière. Position tarifaire : 0101.29.10.00 Situation du : 07/01/2026 22:03:42 Source : ADII SECTION : 01 - Animaux vivants et produits du règne animal CHAPITRE : 01 - Animaux vivants DESIGNATION DU PRODUIT : Codification Désignation du Produit dans le Système Harmonisé Unité de Quantité Normalisée 01.01 Chevaux, ânes, mulets et bardots, vivants 0101.29 - - Autres 10 00 - - - destinés à la boucherie U",
   "unit_of_measure": "U",
-  "import_duty_rate": 2.5,
+  "import_duty_rate": 10.0,
   "parafiscal_tax_rate": 0.25,
-  "vat_rate": 0.0,
+  "vat_rate": 20.0,
   "import_volume_total_kg": null,
   "export_volume_total_kg": null,
   "import_history": null,
   "export_history": null,
   "import_duty_history": null,
-  "top_supplier_countries": [
-    "ADiL\nPrincipaux Pays Fournisseurs.\nPosition tarifaire",
-    "Période statistique",
-    "Intercom",
-    "Unité de mesure",
-    "Source",
-    "Graphique et Tableau"
-  ],
-  "top_client_countries": [
-    "ADiL\nPrincipaux Pays Clients.\nPosition tarifaire",
-    "Période statistique",
-    "Intercom",
-    "Unité de mesure",
-    "Source",
-    "Graphique et Tableau"
-  ],
+  "top_supplier_countries": null,
+  "top_client_countries": null,
   "legal_text": null,
-  "national_classification_text": "ADiL Classification Nationale des Echanges Commerciaux Position tarifaire : 0101.21.00.00 Situation du : 07/01/2026 21:14:43 Source : Haut Comm. du Plan Nouveau Produit Remarquable : - ANIMAUX VIVANTS (ALIMENTATION) Groupement d'utilisation : 1 - ALIMENTATION, BOISSONS ET TABACS Nomenclature Marocaine des Produits \"NMP\" Rubrique Codification - Libellé Section A - PRODUITS AGRICOLES ET FORESTIERS Branche 01 - PRODUITS DE LA CULTURE ET DE L'ELEVAGE Sous Branche 013 - PRODUITS DE L'ÉLEVAGE Activité 0133 - PRODUITS DE L'ÉLEVAGE D'ÉQUIDÉS Groupe de produit 01331 - EQUIDÉS VIVANTS Classe 013310 - EQUIDÉS VIVANTS Nomenclature de la Comptabilité Nationale \"NCN\" Rubrique Codification - Libellé Branche A00 - AGRICULTURE, SYLVICULTURE, CHASSE Sous Branche A00002 - ÉLEVAGE, CHASSE, SERVICES ANNEXES Produit A00002002 - AUTRES ANIMAUX SUR PIEDS N-C VOLAILLES",
-  "international_classification_text": "ADiL Classification Internationale des Echanges Commerciaux Position tarifaire : 0101.21.00.00 Situation du : 07/01/2026 21:14:51 Source : Office des Changes Nouveau Produit Remarquable : - ANIMAUX VIVANTS (ALIMENTATION) Groupement d'utilisation : 1 - ALIMENTATION, BOISSONS ET TABACS Classification Type pour le Commerce International \"CTCI\" Rubrique Codification - Libellé Section 0 - PRODUITS ALIMENTAIRES ET ANIMAUX VIVANTS Division 00 - ANIMAUX VIVANTS AUTRES QUE CEUX FIGURANT DANS LA DIVISION 03 Groupe 001 - ANIMAUX VIVANTS AUTRES QU'ANIMAUX DE LA SECTION 03",
+  "national_classification_text": "ADiL Classification Nationale des Echanges Commerciaux Position tarifaire : 0101.29.10.00 Situation du : 07/01/2026 22:06:34 Source : Haut Comm. du Plan Information non disponible pour le moment.",
+  "international_classification_text": "ADiL Classification Internationale des Echanges Commerciaux Position tarifaire : 0101.29.10.00 Situation du : 07/01/2026 22:06:42 Source : Office des Changes Information non disponible pour le moment.",
   "sources": [
-    "Office des Changes )"
+    "ADII",
+    "Office des Changes",
+    "Haut Comm. du Plan"
   ]
 }
