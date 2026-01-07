@@ -1,29 +1,177 @@
 {
-  "hs_code": "0101291000",
-  "snapshot_date": "2026-01-07",
-  "section_name": "01 - Animaux vivants et produits du règne animal",
-  "chapter_name": "01 - Animaux vivants",
-  "parent_category": "0101",
-  "sub_category": "010129",
-  "product_name": "destinés à la boucherie",
-  "product_designation": "ADiL Nomenclature douanière. Position tarifaire : 0101.29.10.00 Situation du : 07/01/2026 22:03:42 Source : ADII SECTION : 01 - Animaux vivants et produits du règne animal CHAPITRE : 01 - Animaux vivants DESIGNATION DU PRODUIT : Codification Désignation du Produit dans le Système Harmonisé Unité de Quantité Normalisée 01.01 Chevaux, ânes, mulets et bardots, vivants 0101.29 - - Autres 10 00 - - - destinés à la boucherie U",
-  "unit_of_measure": "U",
-  "import_duty_rate": 10.0,
-  "parafiscal_tax_rate": 0.25,
-  "vat_rate": 20.0,
-  "import_volume_total_kg": null,
-  "export_volume_total_kg": null,
-  "import_history": null,
-  "export_history": null,
-  "import_duty_history": null,
-  "top_supplier_countries": null,
-  "top_client_countries": null,
-  "legal_text": null,
-  "national_classification_text": "ADiL Classification Nationale des Echanges Commerciaux Position tarifaire : 0101.29.10.00 Situation du : 07/01/2026 22:06:34 Source : Haut Comm. du Plan Information non disponible pour le moment.",
-  "international_classification_text": "ADiL Classification Internationale des Echanges Commerciaux Position tarifaire : 0101.29.10.00 Situation du : 07/01/2026 22:06:42 Source : Office des Changes Information non disponible pour le moment.",
-  "sources": [
-    "ADII",
-    "Office des Changes",
-    "Haut Comm. du Plan"
-  ]
+  "entity_type": "hs_product",
+  "identity": {
+    "hs_code": "0101291000",
+    "hs_levels": {
+      "hs2": "01",
+      "hs4": "0101",
+      "hs6": "010129",
+      "hs8": "01012910",
+      "hs10": "0101291000"
+    }
+  },
+  "product": {
+    "designation": "destinés à la boucherie",
+    "description_remarkable": "( Source : Office des Changes )",
+    "unit_of_measure": "U",
+    "entry_into_force_date": "2015-01-02"
+  },
+  "classification": {
+    "section": {
+      "code": "01",
+      "label": "Animaux vivants et produits du règne animal"
+    },
+    "chapter": {
+      "code": "01",
+      "label": "Animaux vivants"
+    },
+    "hs_hierarchy": [
+      {
+        "level": 2,
+        "code": "01",
+        "label": "Animaux vivants",
+        "present": true
+      },
+      {
+        "level": 4,
+        "code": "0101",
+        "label": "Chevaux, ânes, mulets et bardots, vivants",
+        "present": true
+      },
+      {
+        "level": 6,
+        "code": "010129",
+        "label": "Autres",
+        "present": true
+      },
+      {
+        "level": 8,
+        "code": "01012910",
+        "label": null,
+        "present": false
+      },
+      {
+        "level": 10,
+        "code": "0101291000",
+        "label": "destinés à la boucherie",
+        "present": true
+      }
+    ]
+  },
+  "taxation": {
+    "current": {
+      "effective_date": "2026-01-07",
+      "import_duty_rate_percent": 10.0,
+      "parafiscal_tax_rate_percent": 0.25,
+      "vat_rate_percent": 20.0,
+      "eligible_for_franchise": false,
+      "source": "ADII"
+    },
+    "history": [
+      {
+        "date": "2015-01-02",
+        "import_duty_rate_percent": 10.0,
+        "source": "ADII"
+      }
+    ]
+  },
+  "trade_statistics": {
+    "imports": null,
+    "exports": null
+  },
+  "geography": {
+    "suppliers": null,
+    "clients": null
+  },
+  "legal_and_statistical_texts": {
+    "national_classification": {
+      "source": "Haut Comm. du Plan",
+      "snapshot_date": "2026-01-07",
+      "language": "fr",
+      "text": "ADiL Classification Nationale des Echanges Commerciaux Position tarifaire : 0101.29.10.00 Situation du : 07/01/2026 23:02:16 Source : Haut Comm. du Plan Information non disponible pour le moment."
+    },
+    "international_classification": {
+      "source": "Office des Changes",
+      "snapshot_date": "2026-01-07",
+      "language": "fr",
+      "text": "ADiL Classification Internationale des Echanges Commerciaux Position tarifaire : 0101.29.10.00 Situation du : 07/01/2026 23:02:24 Source : Office des Changes Information non disponible pour le moment."
+    }
+  },
+  "documents": [
+    {
+      "code": "06002",
+      "name": "Résultat du contrôle.",
+      "issuer": "ONSSA"
+    }
+  ],
+  "agreements": [
+    {
+      "country": "ALGERIE FRANCHISE",
+      "preference": "DI: 0, TPI: 0"
+    },
+    {
+      "country": "LIBYA FRANCHISE",
+      "preference": "DI: 0, TPI: 0"
+    },
+    {
+      "country": "QUAD-AGADIR FRANCHISE",
+      "preference": "DI: 0, TPI: 0"
+    },
+    {
+      "country": "IRAQ FRANCHISE",
+      "preference": "DI: 0, TPI: (*)"
+    },
+    {
+      "country": "SPC-OCI DEMANTELEMENT",
+      "preference": "DI: 25, TPI: 0"
+    },
+    {
+      "country": "EMIRATES A. U. FRANCHISE",
+      "preference": "DI: 0, TPI: 0"
+    },
+    {
+      "country": "LIGUE ARABE FRANCHISE",
+      "preference": "DI: 0, TPI: 0"
+    },
+    {
+      "country": "UE AGRI : LISTE 1 GROUPE 1",
+      "preference": "DI: 0, TPI: (*)"
+    },
+    {
+      "country": "USA ANNEXE II CAT. A",
+      "preference": "DI: 0, TPI: (*)"
+    },
+    {
+      "country": "ROYAUME UNI AGRI : LISTE 1 GROUPE 1",
+      "preference": "DI: 0, TPI: (*)"
+    },
+    {
+      "country": "SPC-OCI DEMANTELEMENT",
+      "preference": "DI: 25, TPI: (*)"
+    },
+    {
+      "country": "(*) Taux du Régime du Droit Commun",
+      "preference": "N/A"
+    }
+  ],
+  "data_availability": {
+    "documents_and_norms": true,
+    "agreements_and_conventions": true,
+    "importers": false,
+    "exporters": false
+  },
+  "lineage": {
+    "scraped_at": "2026-01-07T22:01:09.306234",
+    "scrape_status": "success",
+    "sections": {
+      "total": 14,
+      "successful": 14,
+      "failed": 0
+    },
+    "sources": [
+      "Haut Comm. du Plan",
+      "Office des Changes",
+      "ADII"
+    ]
+  }
 }
