@@ -1,0 +1,11 @@
+[
+  {
+    "hs_code": "0101210000",
+    "scraped_at": "2026-01-08T22:01:21.044315",
+    "scrape_status": "error",
+    "main_content": {},
+    "sections": [],
+    "summary": null,
+    "error": "Message: no such element: Unable to locate element: {\"method\":\"css selector\",\"selector\":\"[name=\"lposition\"]\"}\n  (Session info: chrome=143.0.7499.192); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception\nStacktrace:\nSymbols not available. Dumping unresolved backtrace:\n\t0x7ff777e888d5\n\t0x7ff777e88930\n\t0x7ff777c6165d\n\t0x7ff777cb9a33\n\t0x7ff777cb9d3c\n\t0x7ff777d0df67\n\t0x7ff777d0ac97\n\t0x7ff777caac29\n\t0x7ff777caba93\n\t0x7ff7781a0620\n\t0x7ff77819af60\n\t0x7ff7781b96c6\n\t0x7ff777ea5dd4\n\t0x7ff777eaed7c\n\t0x7ff777e91ff4\n\t0x7ff777e921a5\n\t0x7ff777e77ed2\n\t0x7ff985c4259d\n\t0x7ff985e6af78\n"
+  }
+]
