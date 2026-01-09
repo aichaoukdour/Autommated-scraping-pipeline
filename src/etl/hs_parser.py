@@ -67,7 +67,8 @@ def parse_hs_hierarchy(raw_text: str) -> dict:
     return result
 
 def parse_annual_volumes(raw_text: str):
-    from schemas import AnnualVolume
+    # This might need updating if we strictly use schemas, but for now returned dict/list is fine
+    # if we wrap it later.
     lines = [l.strip() for l in raw_text.splitlines() if l.strip()]
     
     # Try to split by "Année" and "Poids" headers if possible
@@ -98,7 +99,7 @@ def parse_annual_volumes(raw_text: str):
     history = []
     # Zip safely
     for y, w in zip(years, weights):
-        history.append(AnnualVolume(year=y, weight_kg=w))
+        history.append({"year": y, "weight_kg": w})
         
     return history
 
@@ -131,7 +132,7 @@ def parse_suppliers_or_clients(raw_text: str):
     return results
 
 def parse_documents(raw_text: str):
-    from schemas import Document
+    from .schemas import DocumentItem
     lines = [l.strip() for l in raw_text.splitlines() if l.strip()]
     
     docs = []
@@ -158,13 +159,13 @@ def parse_documents(raw_text: str):
             # Simple deduplication based on unique tuple
             doc_key = (code, name, issuer)
             if doc_key not in seen_docs:
-                docs.append(Document(code=code, name=name, issuer=issuer))
+                docs.append(DocumentItem(code=code, name=name, issuer=issuer, raw=f"{code} {name} {issuer}"))
                 seen_docs.add(doc_key)
             
     return docs
 
 def parse_agreements(raw_text: str):
-    from schemas import Agreement
+    from .schemas import AccordItem
     lines = [l.strip() for l in raw_text.splitlines() if l.strip()]
     
     agreements = []
@@ -183,8 +184,8 @@ def parse_agreements(raw_text: str):
         if start_parsing:
             # Attempt to split by last two tokens (rates)
             # Regex to capture: Name + Rate1 + Rate2
-            # Rate can be number or (*)
-            match = re.search(r"^(.*?)\s+([\d,\.]+|\(\*\))\s+([\d,\.]+|\(\*\))$", line)
+            # Rate can be number or (*) or 0%
+            match = re.search(r"^(.*?)\s+([\d,\.]+%?|\(\*\))\s+([\d,\.]+%?|\(\*\))$", line)
             if match:
                 name = match.group(1).strip()
                 di_rate = match.group(2)
@@ -192,15 +193,40 @@ def parse_agreements(raw_text: str):
                 
                 agr_key = (name, di_rate, tpi_rate)
                 if agr_key not in seen_agreements:
-                    agreements.append(Agreement(
+                    agreements.append(AccordItem(
                         country=name, 
-                        preference=f"DI: {di_rate}, TPI: {tpi_rate}"
+                        DI=di_rate,
+                        TPI=tpi_rate,
+                        raw=line
                     ))
                     seen_agreements.add(agr_key)
             else:
                 # Fallback if regex fails
-                if line not in seen_agreements:
-                    agreements.append(Agreement(country=line, preference="N/A"))
-                    seen_agreements.add(line)
+                # Note: This fallback might be too broad, but we'll keep it simple
+                if line and len(line) > 3 and line not in seen_agreements:
+                     # Attempt to parse lines that might be formatted differently or just country names
+                     # For now, if we can't parse rates, we might just skip or add as raw
+                     pass
                 
     return agreements
+
+def parse_taxation_from_text(raw_text: str):
+    from .schemas import TaxItem
+    # Simple regex based parser for standard taxation lines if they follow "Code Label Rate" pattern
+    # This is a placeholder as taxation structure varies 
+    lines = [l.strip() for l in raw_text.splitlines() if l.strip()]
+    taxes = []
+    
+    for line in lines:
+        # Example pattern: DI Droit d'importation 2.5%
+        # Or: TVA Taxe sur la valeur ajoutée 20%
+        # Needs refinement based on actual text
+        match = re.match(r"^([A-Z]+)\s+(.*?)\s+([\d,\.]+\s?%|Exonéré|\(\*\))$", line)
+        if match:
+            taxes.append(TaxItem(
+                code=match.group(1),
+                label=match.group(2).strip(),
+                raw=match.group(3)
+            ))
+    return taxes
+

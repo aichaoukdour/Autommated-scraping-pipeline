@@ -5,3 +5,16 @@ selenium
 webdriver-manager
 openpyxl
 asyncpg
+
+ftfy
+clean-text
+dateparser
+babel
+
+numpy
+pydantic
+pandera
+great_expectations
+prefect
+
+spacy

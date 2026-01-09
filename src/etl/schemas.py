@@ -1,141 +1,107 @@
-from pydantic import BaseModel
-from typing import List, Optional, Any
+from pydantic import BaseModel, Field
+from typing import List, Optional, Dict, Any, Union
 
-# --- Sub-models ---
+# --- Common Meta & Lineage ---
 
-class HSLevels(BaseModel):
-    hs2: str
-    hs4: str
-    hs6: str
-    hs8: str
-    hs10: str
+class Meta(BaseModel):
+    note: Optional[str] = None
+    source: Optional[str] = "ADII"
+    version: Optional[str] = None
 
-class Identity(BaseModel):
-    hs_code: str
-    hs_levels: HSLevels
+class HttpInfo(BaseModel):
+    status_code: Optional[int] = None
+    etag: Optional[str] = None
+    last_modified: Optional[str] = None
 
-class ProductDetails(BaseModel):
-    designation: str
-    description_remarkable: Optional[str]
-    unit_of_measure: Optional[str]
-    entry_into_force_date: Optional[str]
+class PipelineInfo(BaseModel):
+    scraper: Optional[str] = "selenium-scraper"
+    parser_version: Optional[str] = "v1.0"
+    schema_version: Optional[str] = "v1.0"
 
-class CodeLabel(BaseModel):
-    code: str
-    label: str
+class QualityInfo(BaseModel):
+    encoding_fixed: Optional[bool] = None
+    missing_sections: List[str] = Field(default_factory=list)
+    warnings: List[str] = Field(default_factory=list)
 
-class HierarchyItem(BaseModel):
-    level: int
-    code: str
-    label: Optional[str]
-    present: bool
-
-class Classification(BaseModel):
-    section: CodeLabel
-    chapter: CodeLabel
-    hs_hierarchy: List[HierarchyItem]
-
-class CurrentTaxation(BaseModel):
-    effective_date: str
-    import_duty_rate_percent: Optional[float]
-    parafiscal_tax_rate_percent: Optional[float]
-    vat_rate_percent: Optional[float]
-    eligible_for_franchise: bool = False # Default logic or derived
-    source: str
-
-class TaxHistoryItem(BaseModel):
-    date: str
-    import_duty_rate_percent: float
-    source: str = "ADII"
-
-class Taxation(BaseModel):
-    current: CurrentTaxation
-    history: List[TaxHistoryItem]
-
-class AnnualVolume(BaseModel):
-    year: int
-    weight_kg: float
-
-class TradePeriod(BaseModel):
-    from_year: int
-    to_year: int
-
-class TradeFlow(BaseModel):
-    period: TradePeriod
-    unit: str
-    incoterm: str
-    annual_volumes: List[AnnualVolume]
-    source: str
-
-class TradeStatistics(BaseModel):
-    imports: Optional[TradeFlow]
-    exports: Optional[TradeFlow]
-
-class CountryFlow(BaseModel):
-    country: str
-    weight_kg: float
-
-class GeoFlow(BaseModel):
-    year: int
-    unit: str
-    incoterm: str
-    countries: List[CountryFlow]
-    source: str
-
-class Geography(BaseModel):
-    suppliers: Optional[GeoFlow]
-    clients: Optional[GeoFlow]
-
-class LegalTextItem(BaseModel):
-    source: str
-    snapshot_date: str
-    language: str = "fr"
-    text: Optional[str]
-
-class LegalAndStatisticalTexts(BaseModel):
-    national_classification: Optional[LegalTextItem]
-    international_classification: Optional[LegalTextItem]
-    # We can add legal_text here if needed as a strictly legal doc?
-    # User example put these under legal_and_statistical_texts
-
-class DataAvailability(BaseModel):
-    documents_and_norms: bool
-    agreements_and_conventions: bool
-    importers: bool
-    exporters: bool
-
-class SectionStats(BaseModel):
-    total: int
-    successful: int
-    failed: int
+class ErrorInfo(BaseModel):
+    stage: str
+    message: str
+    raw: Optional[Dict[str, Any]] = None
 
 class Lineage(BaseModel):
-    scraped_at: str
-    scrape_status: str
-    sections: SectionStats
-    sources: List[str]
+    scraped_at: Optional[str] = None
+    status: Optional[str] = None  # success, failed, partial, stale
+    url: Optional[str] = None
+    http: HttpInfo = Field(default_factory=HttpInfo)
+    pipeline: PipelineInfo = Field(default_factory=PipelineInfo)
+    quality: QualityInfo = Field(default_factory=QualityInfo)
+    sources: List[str] = Field(default_factory=list)
+    errors: List[ErrorInfo] = Field(default_factory=list)
 
-class Document(BaseModel):
+# --- Taxation ---
+
+class TaxItem(BaseModel):
+    code: str  # ex: "DI", "TPI", "TVA"
+    label: Optional[str] = None
+    raw: Optional[str] = None
+
+class TaxationSection(BaseModel):
+    taxes: List[TaxItem] = Field(default_factory=list)
+    meta: Meta = Field(default_factory=Meta)
+
+# --- Documents ---
+
+class DocumentItem(BaseModel):
     code: str
     name: str
     issuer: str
+    raw: Optional[str] = None
 
-class Agreement(BaseModel):
+class DocumentsSection(BaseModel):
+    documents: List[DocumentItem] = Field(default_factory=list)
+    meta: Meta = Field(default_factory=Meta)
+
+# --- Agreements (Accords) ---
+
+class AccordItem(BaseModel):
     country: str
-    preference: str
+    Liste: Optional[str] = ""
+    DI: str = "0%"
+    TPI: str = "0%"
+    raw: Optional[str] = None
+
+class AccordConventionSection(BaseModel):
+    accord_convention: List[AccordItem] = Field(default_factory=list)
+    meta: Meta = Field(default_factory=Meta)
+
+# --- History ---
+
+class HistoryItem(BaseModel):
+    date: str
+    raw: Optional[str] = None
+
+class HistorySection(BaseModel):
+    items: List[HistoryItem] = Field(default_factory=list)
+    meta: Meta = Field(default_factory=Meta)
+
+# --- Other Sections (Generic or Specific) ---
+
+class GenericSection(BaseModel):
+    content: Dict[str, Any]
+    meta: Meta = Field(default_factory=Meta)
 
 # --- Root Model ---
 
 class HSProduct(BaseModel):
-    entity_type: str = "hs_product"
-    identity: Identity
-    product: ProductDetails
-    classification: Classification
-    taxation: Taxation
-    trade_statistics: TradeStatistics
-    geography: Geography
-    legal_and_statistical_texts: LegalAndStatisticalTexts
-    documents: Optional[List[Document]]
-    agreements: Optional[List[Agreement]]
-    data_availability: DataAvailability
+    hs_code: str
     lineage: Lineage
+    
+    # Sections
+    taxation: Optional[TaxationSection] = None
+    documents: Optional[DocumentsSection] = None
+    accord_convention: Optional[AccordConventionSection] = None
+    historique: Optional[HistorySection] = None
+    
+    # Generic bucket for other sections like classification, geography etc. if needed
+    other_data: Optional[Dict[str, Any]] = Field(default_factory=dict)
+
