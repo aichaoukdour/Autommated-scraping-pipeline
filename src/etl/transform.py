@@ -1,12 +1,9 @@
 # transform.py
 
-from datetime import datetime
-from cleaners import clean_text_block, parse_french_date, parse_percentage
-
-
 import re
 from datetime import datetime
 from cleaners import clean_text_block, parse_french_date, parse_percentage
+from schemas import HSProduct
 
 def transform(raw: dict) -> dict:
     """
@@ -142,6 +139,24 @@ def transform(raw: dict) -> dict:
         },
         "raw": raw
     }
+
+    # Validate with Pydantic
+    try:
+        # We need to map some fields to match the HSProduct schema names if they differ
+        # For now, let's try to align them
+        validation_data = {
+            "hs_code": hs10,
+            "lineage": product["lineage"],
+            "taxation": product["taxation"],
+            "documents": product["documents"],
+            # HSProduct uses accord_convention and historique as names
+            "accord_convention": {"accord_convention": agreements},
+            "historique": {"items": history}
+        }
+        HSProduct(**validation_data)
+        print(f"✅ Data validation passed for {hs10}")
+    except Exception as e:
+        print(f"⚠️ Validation warning for {hs10}: {e}")
 
     return product
 
