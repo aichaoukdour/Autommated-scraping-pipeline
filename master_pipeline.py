@@ -26,16 +26,15 @@ def run_pipeline():
     existing_codes = resume_utils.get_existing_hs_codes(etl_main.DSN)
     
     # 1. Scraping Layer
-    print("\n--- Phase 1: Scraping ---")
-    scraper.main(csv_path=csv_input, output_dir=scraper_output_dir, skip_codes=existing_codes)
+    print("\n--- Phase 1: Scraping (Direct Streaming) ---")
+    raw_data = scraper.main(csv_path=csv_input, output_dir=scraper_output_dir, skip_codes=existing_codes, save_to_file=False)
     
     # 2. ETL Layer
     print("\n--- Phase 2: ETL (Extract, Transform, Load) ---")
-    if not detailed_json.exists():
-        print(f"❌ Error: {detailed_json} not found after scraping!")
-        return
-        
-    etl_main.run(input_path=str(detailed_json))
+    if not raw_data:
+        print("⏭️ No new data to process (either skipped or error).")
+    else:
+        etl_main.process_data(raw_data, etl_main.DSN)
     
     print("\n✅ Master Pipeline completed successfully!")
 

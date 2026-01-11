@@ -644,7 +644,7 @@ def build_summary(results: List[Dict[str, Any]], config: ScraperConfig) -> Dict[
 
 
 # Entry Point
-def main(csv_path: Optional[Path] = None, output_dir: Path = Path("."), skip_codes: Optional[Set[str]] = None):
+def main(csv_path: Optional[Path] = None, output_dir: Path = Path("."), skip_codes: Optional[Set[str]] = None, save_to_file: bool = True):
     """Main execution function"""
     # Enable DEBUG logging
     logger.setLevel(logging.INFO)
@@ -660,12 +660,15 @@ def main(csv_path: Optional[Path] = None, output_dir: Path = Path("."), skip_cod
     
     if not csv_path.exists():
         logger.error(f"CSV file not found: {csv_path}")
-        return
+        return []
     
     results = process_csv_batch(csv_path, config, limit=1, skip_codes=skip_codes)
-    save_results(results, output_dir, config)
+    
+    if save_to_file:
+        save_results(results, output_dir, config)
     
     logger.info("Processing complete")
+    return results
 
 
 if __name__ == "__main__":

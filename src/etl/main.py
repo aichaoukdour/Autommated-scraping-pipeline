@@ -8,12 +8,8 @@ DSN = "dbname=hs user=postgres password=postgres host=localhost port=5433"
 INPUT_PATH = "../adil_detailed.json"
 
 
-def run():
-    # Load all raw records
-    raw_list = extract_json(INPUT_PATH)
-    
-    print(f"🚀 Processing {len(raw_list)} record(s).")
-
+def process_data(raw_list: list, dsn: str = DSN):
+    """Transform and load raw data payloads into the database."""
     products = []
     for raw in raw_list:
         try:
@@ -24,9 +20,15 @@ def run():
             print(f"❌ Failed to transform {hs_code}: {e}")
 
     if products:
-        load(products, DSN)
+        load(products, dsn)
     else:
         print("⚠️ No products were successfully transformed. Nothing to load.")
+
+def run(input_path: str = INPUT_PATH):
+    # Load all raw records from file
+    raw_list = extract_json(input_path)
+    print(f"🚀 Processing {len(raw_list)} record(s) from file.")
+    process_data(raw_list)
 
 
 if __name__ == "__main__":
