@@ -8,7 +8,7 @@ import csv
 import time
 import re
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Set
 from dataclasses import dataclass, asdict
 from datetime import datetime
 from collections import defaultdict
@@ -541,11 +541,19 @@ def scrape_single_code(hs_code: str, config: ScraperConfig = None) -> Dict[str, 
 def process_csv_batch(
     csv_path: Path, 
     config: ScraperConfig = None,
-    limit: Optional[int] = None
+    limit: Optional[int] = None,
+    skip_codes: Optional[Set[str]] = None
 ) -> List[Dict[str, Any]]:
     """Process multiple HS codes from CSV"""
     hs_codes = read_hs_codes(csv_path, limit)
     
+    if skip_codes:
+        original_count = len(hs_codes)
+        hs_codes = [c for c in hs_codes if c not in skip_codes]
+        skipped_count = original_count - len(hs_codes)
+        if skipped_count > 0:
+            logger.info(f"⏭️ Skipping {skipped_count} HS codes already in database.")
+
     logger.info(f"Processing {len(hs_codes)} HS codes with {config.max_workers} workers")
     
     results = []
@@ -636,7 +644,7 @@ def build_summary(results: List[Dict[str, Any]], config: ScraperConfig) -> Dict[
 
 
 # Entry Point
-def main():
+def main(csv_path: Optional[Path] = None, output_dir: Path = Path("."), skip_codes: Optional[Set[str]] = None):
     """Main execution function"""
     # Enable DEBUG logging
     logger.setLevel(logging.INFO)
@@ -647,14 +655,15 @@ def main():
         headless=True
     )
     
-    csv_path = Path("../Code Sh Import - Feuil.csv")
+    if csv_path is None:
+        csv_path = Path("../Code Sh Import - Feuil.csv")
     
     if not csv_path.exists():
         logger.error(f"CSV file not found: {csv_path}")
         return
     
-    results = process_csv_batch(csv_path, config, limit=1)
-    save_results(results, Path("."), config)
+    results = process_csv_batch(csv_path, config, limit=1, skip_codes=skip_codes)
+    save_results(results, output_dir, config)
     
     logger.info("Processing complete")
 
