@@ -4,7 +4,9 @@ import os
 from psycopg2.extras import DictCursor
 
 DSN = "dbname=hs user=postgres password=postgres host=localhost port=5433"
-OUTPUT_DIR = "output_csv"
+# Resolve output path relative to script location
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+OUTPUT_DIR = os.path.join(SCRIPT_DIR, "output_csv")
 
 def export_table_to_csv(table_name, conn):
     with conn.cursor(cursor_factory=DictCursor) as cur:
@@ -19,7 +21,7 @@ def export_table_to_csv(table_name, conn):
         
         colnames = [desc[0] for desc in cur.description]
         
-        with open(filename, 'w', newline='', encoding='utf-8') as f:
+        with open(filename, 'w', newline='', encoding='utf-8-sig') as f:
             writer = csv.DictWriter(f, fieldnames=colnames)
             writer.writeheader()
             for row in rows:
