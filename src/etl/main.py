@@ -9,10 +9,24 @@ INPUT_PATH = "../adil_detailed.json"
 
 
 def run():
-    raw = extract_json(INPUT_PATH)
-    product = transform(raw)
+    # Load all raw records
+    raw_list = extract_json(INPUT_PATH)
+    
+    print(f"🚀 Processing {len(raw_list)} record(s).")
 
-    load([product], DSN)
+    products = []
+    for raw in raw_list:
+        try:
+            product = transform(raw)
+            products.append(product)
+        except Exception as e:
+            hs_code = raw.get("hs_code", "Unknown")
+            print(f"❌ Failed to transform {hs_code}: {e}")
+
+    if products:
+        load(products, DSN)
+    else:
+        print("⚠️ No products were successfully transformed. Nothing to load.")
 
 
 if __name__ == "__main__":
