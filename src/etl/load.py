@@ -1,13 +1,18 @@
-# load.py
-
 import json
 import psycopg2
 from psycopg2.extras import Json
+from typing import Optional
 
-
-import json
-import psycopg2
-from psycopg2.extras import Json
+def record_audit_log(hs10: str, status: str, message: Optional[str], duration_ms: Optional[int], conn):
+    """
+    Record an entry in the audit_logs table.
+    """
+    with conn.cursor() as cur:
+        cur.execute("""
+            INSERT INTO audit_logs (hs10, status, message, duration_ms)
+            VALUES (%s, %s, %s, %s)
+        """, (hs10, status, message, duration_ms))
+    conn.commit()
 
 def load_product(product: dict, conn):
     """

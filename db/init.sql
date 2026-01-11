@@ -54,3 +54,17 @@ CREATE TABLE IF NOT EXISTS hs_products (
     raw JSONB,
     updated_at TIMESTAMP DEFAULT NOW()
 );
+
+-- Audit Logs Table for Observability
+CREATE TABLE IF NOT EXISTS audit_logs (
+    id SERIAL PRIMARY KEY,
+    hs10 VARCHAR(50),
+    status VARCHAR(20) NOT NULL,
+    message TEXT,
+    duration_ms INTEGER,
+    timestamp TIMESTAMP DEFAULT NOW()
+);
+
+-- Index for fast lookup of latest logs
+CREATE INDEX IF NOT EXISTS idx_audit_hs10 ON audit_logs(hs10);
+CREATE INDEX IF NOT EXISTS idx_audit_timestamp ON audit_logs(timestamp);
