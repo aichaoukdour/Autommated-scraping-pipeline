@@ -1,4 +1,4 @@
-# transform.py
+# transform.py - FIXED VERSION
 
 import re
 from datetime import datetime
@@ -10,69 +10,182 @@ def transform(raw: dict) -> dict:
     Transform raw scraped ADIL payload into storage-ready HS product.
     Handles the nested 'sections' structure from adil_detailed.json.
     """
-    hs10 = raw.get("hs_code", "NA")
+    import sys
+    hs_code = raw.get("hs_code", "NA")
+    print(f"\n>>>> TRANSFORMING: {hs_code}")
+    
+    # ============================================================================
+    # DETERMINISTIC HIERARCHY EXTRACTION (from HS code directly)
+    # ============================================================================
+    hs4_code = hs_code[:4]   # "0101"
+    hs6_code = hs_code[:6]   # "010121" or "010129"
+    hs8_code = hs_code[:8]   # "01012100" or "01012900"
+    
+    print(f"DEBUG: Derived hierarchy - HS4: {hs4_code}, HS6: {hs6_code}, HS8: {hs8_code}")
+    sys.stdout.flush()
     
     # Helper to map sections by name
-    sections = {s["section_name"]: s["content"] for s in raw.get("sections", [])}
+    sections_list = raw.get("sections", [])
+    print(f"DEBUG: Found {len(sections_list)} sections: {[s.get('section_name') for s in sections_list]}")
+    sys.stdout.flush()
     
+    sections = {s["section_name"]: s["content"] for s in sections_list}
+    
+    # ============================================================================
     # 1. Extract Position Tarifaire (Hierarchy & Basic Info)
+    # ============================================================================
     pos_tarifaire = sections.get("Position tarifaire", {})
     kv = pos_tarifaire.get("key_values", {})
+    raw_text = pos_tarifaire.get("raw_text", "")
     
-    # Section & Chapter
+    # === SECTION EXTRACTION (Improved) ===
+    section_code = "NA"
+    section_label = "NA"
+    
     section_raw = kv.get("SECTION", "")
-    s_match = re.match(r"(\d+)\s*-\s*(.*)", section_raw)
-    section_code = s_match.group(1) if s_match else "NA"
-    section_label = s_match.group(2) if s_match else "NA"
+    if section_raw:
+        # Expected format: "01 - Animaux vivants et produits du règne animal"
+        match = re.match(r"^(\d{2})\s*[\-–—]\s*(.+)$", section_raw.strip())
+        if match:
+            section_code = match.group(1)
+            section_label = match.group(2).strip()
+        else:
+            # Fallback: split on first dash
+            parts = section_raw.split("-", 1)
+            if len(parts) == 2:
+                section_code = parts[0].strip()
+                section_label = parts[1].strip()
+    
+    # Fallback to raw_text search if not found
+    if section_code == "NA":
+        s_text_match = re.search(r"SECTION\s*:\s*(\d{2})\s*[\-–—]\s*(.+?)(?:\n|$)", raw_text, re.I)
+        if s_text_match:
+            section_code = s_text_match.group(1)
+            section_label = s_text_match.group(2).strip()
+    
+    print(f"DEBUG: Section extracted - code='{section_code}', label='{section_label[:50]}...'")
+    
+    # === CHAPTER EXTRACTION (Improved) ===
+    chapter_code = "NA"
+    chapter_label = "NA"
     
     chapter_raw = kv.get("CHAPITRE", "")
-    c_match = re.match(r"(\d+)\s*-\s*(.*)", chapter_raw)
-    chapter_code = c_match.group(1) if c_match else "NA"
-    chapter_label = c_match.group(2) if c_match else "NA"
+    if chapter_raw:
+        # Expected format: "01 - Animaux vivants"
+        match = re.match(r"^(\d{2})\s*[\-–—]\s*(.+)$", chapter_raw.strip())
+        if match:
+            chapter_code = match.group(1)
+            chapter_label = match.group(2).strip()
+        else:
+            # Fallback: split on first dash
+            parts = chapter_raw.split("-", 1)
+            if len(parts) == 2:
+                chapter_code = parts[0].strip()
+                chapter_label = parts[1].strip()
     
-    # Use regex to find HS4/HS6/Designation in raw_text if not in kv
-    raw_text = pos_tarifaire.get("raw_text", "")
-    hs4_match = re.search(r"(\d{2}\.\d{2})", raw_text)
-    hs4_code = hs4_match.group(1).replace(".", "") if hs4_match else hs10[:4]
+    # Fallback to raw_text search if not found
+    if chapter_code == "NA":
+        c_text_match = re.search(r"CHAPITRE\s*:\s*(\d{2})\s*[\-–—]\s*(.+?)(?:\n|$)", raw_text, re.I)
+        if c_text_match:
+            chapter_code = c_text_match.group(1)
+            chapter_label = c_text_match.group(2).strip()
     
-    hs6_match = re.search(r"(\d{4}\.\d{2})", raw_text)
-    hs6_code = hs6_match.group(1).replace(".", "") if hs6_match else hs10[:6]
-
-    # Designation: often follows HS6 or a list of digits
-    # In the sample: "... 0101.21 \n 00 \n 00 \n - - Reproducteurs de race pure (a.)"
-    des_match = re.search(r"-\s*-\s*(.*)", raw_text)
-    designation = des_match.group(1).strip() if des_match else kv.get("DESIGNATION DU PRODUIT", "NA")
-
+    print(f"DEBUG: Chapter extracted - code='{chapter_code}', label='{chapter_label[:50]}...'")
+    sys.stdout.flush()
+    
+    # === DESIGNATION EXTRACTION (Context-Aware) ===
+    designation = "NA"
+    
+    # Strategy 1: Look for the specific HS6 pattern and extract designation after it
+    hs6_formatted = f"{hs_code[:4]}.{hs_code[4:6]}"  # "0101.21" or "0101.29"
+    hs6_index = raw_text.find(hs6_formatted)
+    
+    if hs6_index != -1:
+        # Extract text after the HS6 code
+        text_after_hs6 = raw_text[hs6_index:]
+        
+        # Look for the HS10 sub-digits
+        hs10_pattern = rf"{re.escape(hs6_formatted)}\s*\n?\s*(\d{{2}})\s*\n?\s*(\d{{2}})\s*\n?\s*-\s*-+\s*(.*?)(?:\n|$)"
+        hs10_match = re.search(hs10_pattern, text_after_hs6, re.DOTALL)
+        
+        if hs10_match and hs10_match.group(1) == hs_code[6:8] and hs10_match.group(2) == hs_code[8:10]:
+            # Found exact match for our HS10
+            designation = hs10_match.group(3).strip()
+            print(f"DEBUG: Designation found via HS10 pattern: '{designation[:50]}...'")
+        else:
+            # Fallback: just look for first "- -" after HS6
+            des_match = re.search(r"-\s*-+\s*(.*?)(?:\n|$)", text_after_hs6)
+            if des_match:
+                designation = des_match.group(1).strip()
+                print(f"DEBUG: Designation found via fallback: '{designation[:50]}...'")
+    
+    # Strategy 2: Fallback to key-value
+    if designation == "NA" or not designation:
+        designation = kv.get("DESIGNATION DU PRODUIT", "NA")
+        if designation != "NA":
+            print(f"DEBUG: Designation from key-value: '{designation[:50]}...'")
+    
+    # Clean up designation
+    if designation and designation != "NA":
+        # Remove common artifacts
+        designation = re.sub(r'â€"', '-', designation)  # Fix encoding
+        designation = re.sub(r'\s+', ' ', designation)  # Normalize whitespace
+        designation = designation.strip()
+    
+    scraped_at = raw.get("scraped_at") or datetime.utcnow().isoformat() + "Z"
+    parser_version = "v1.3"  # Incremented version
+    
+    # ============================================================================
     # 2. Taxation Section
+    # ============================================================================
     tax_content = sections.get("Droits et Taxes", {})
     tax_kv = tax_content.get("key_values", {})
     taxes = []
+    
     for k, v in tax_kv.items():
-        if any(x in k for x in ["Position tarifaire", "Situation du", "Source"]):
+        # Skip metadata fields
+        if any(x in k for x in ["Position tarifaire", "Situation du", "Source", "ADiL"]):
             continue
+        
         # Extract code from brackets: "- Droit d'Importation* ( DI )"
-        code_m = re.search(r"\((.*?)\)", k)
-        code = code_m.group(1) if code_m else "NA"
+        code_match = re.search(r"\(([^)]+)\)", k)
+        code = code_match.group(1).strip() if code_match else "NA"
+        
+        # Clean label
         label = re.sub(r"^-?\s*", "", k).split("(")[0].strip().replace("*", "")
+        
         taxes.append({
             "code": code,
             "label": clean_text_block(label),
             "raw": v
         })
-
+    
+    taxation_meta = {
+        "source": "ADII",
+        "scraped_at": scraped_at,
+        "parser_version": parser_version,
+        "lang": "fr"
+    }
+    
+    # ============================================================================
     # 3. Documents Section
+    # ============================================================================
     doc_content = sections.get("Documents et Normes", {})
     doc_raw = doc_content.get("raw_text", "")
     documents = []
+    
     # Simple lines-based parsing for "N° document\nDocument\nEmetteur" table
     doc_lines = [l.strip() for l in doc_raw.splitlines() if l.strip()]
+    
     try:
         start_idx = -1
         for i, line in enumerate(doc_lines):
             if "Emetteur" in line:
                 start_idx = i + 1
                 break
+        
         if start_idx != -1:
+            # Process lines in groups of 3
             for i in range(start_idx, len(doc_lines), 3):
                 if i + 2 < len(doc_lines):
                     documents.append({
@@ -81,82 +194,151 @@ def transform(raw: dict) -> dict:
                         "issuer": clean_text_block(doc_lines[i+2]),
                         "raw": f"{doc_lines[i]} {doc_lines[i+1]}"
                     })
-    except Exception:
-        pass
-
+    except Exception as e:
+        print(f"WARNING: Failed to parse documents section: {e}")
+    
+    documents_meta = {
+        "source": "ADII",
+        "scraped_at": scraped_at,
+        "parser_version": parser_version,
+        "lang": "fr"
+    }
+    
+    # ============================================================================
     # 4. Agreements Section
+    # ============================================================================
     agg_content = sections.get("Accords et Convention", {})
     agg_raw = agg_content.get("raw_text", "")
     agreements = []
+    
     # Regex to capture: Name + Rate1 + Rate2
     for line in agg_raw.splitlines():
-        match = re.search(r"^(.*?)\s+([\d,\.]+%?|\(\*\))\s+([\d,\.]+%?|\(\*\))$", line.strip())
+        # Match patterns like: "UE AGRI : LISTE 1 GROUPE 1 0 (*)"
+        match = re.search(r"^(.*?)\s+([\d,\.]+%?|\(\*\)|0)\s+([\d,\.]+%?|\(\*\)|0)\s*$", line.strip())
         if match:
             agreements.append({
                 "country": match.group(1).strip(),
-                "benefit": match.group(2), # DI rate usually
+                "DI": match.group(2),
+                "TPI": match.group(3),
                 "raw": line.strip()
             })
-
+    
+    agreements_meta = {
+        "source": "ADII",
+        "scraped_at": scraped_at,
+        "parser_version": parser_version,
+        "lang": "fr"
+    }
+    
+    # ============================================================================
     # 5. History Section
+    # ============================================================================
     hist_content = sections.get("Historique Droit d'Importation", {})
     hist_raw = hist_content.get("raw_text", "")
     history = []
+    
     # Format: "Date\n02/01/2015\nTaux\n2,5 %"
     hist_lines = [l.strip() for l in hist_raw.splitlines() if l.strip()]
+    
     for i, line in enumerate(hist_lines):
+        # Look for date pattern
         if re.match(r"\d{2}/\d{2}/\d{4}", line):
             rate = hist_lines[i+2] if i + 2 < len(hist_lines) else ""
             history.append({
                 "date": parse_french_date(line),
-                "event": f"Taux: {rate}",
-                "raw": line
+                "raw": f"Taux: {rate}"
             })
+    
+    history_meta = {
+        "source": "ADII",
+        "scraped_at": scraped_at,
+        "parser_version": parser_version,
+        "lang": "fr"
+    }
+    
+    # === HIERARCHY LABEL EXTRACTION ===
+    hs4_label = "NA"
+    hs6_label = "NA"
 
-    # Build Product
+    # Format codes for search: 0101 -> 01.01, 010129 -> 0101.29
+    hs4_fmt = f"{hs4_code[:2]}.{hs4_code[2:]}"
+    hs6_fmt = f"{hs6_code[:4]}.{hs6_code[4:]}"
+
+    # Extract HS4 Label from raw_text
+    # usage of re.MULTILINE to match start of lines
+    m4 = re.search(rf"^{re.escape(hs4_fmt)}\s*\n(.+?)(?:\n|$)", raw_text, re.MULTILINE)
+    if m4:
+        hs4_label = m4.group(1).strip()
+
+    # Extract HS6 Label from raw_text
+    m6 = re.search(rf"^{re.escape(hs6_fmt)}\s*\n(.+?)(?:\n|$)", raw_text, re.MULTILINE)
+    if m6:
+        hs6_label = m6.group(1).strip()
+    
+    # Clean labels
+    hs4_label = clean_text_block(hs4_label)
+    hs6_label = clean_text_block(hs6_label)
+
+    print(f"DEBUG: Hierarchy Labels - HS4: '{hs4_label}', HS6: '{hs6_label}'")
+
+    # ============================================================================
+    # 6. Build Final Product
+    # ============================================================================
     product = {
-        "hs10": hs10,
+        "hs_code": hs_code,
         "hierarchy": {
             "section_code": section_code,
             "section_label": clean_text_block(section_label),
             "chapter_code": chapter_code,
             "chapter_label": clean_text_block(chapter_label),
-            "hs4": {"code": hs4_code, "label": "NA", "present": True},
-            "hs6": {"code": hs6_code, "label": "NA", "present": True}
+            "hs4": {"code": hs4_code, "label": hs4_label, "present": True},
+            "hs6": {"code": hs6_code, "label": hs6_label, "present": True},
+            "meta": {
+                "source": "ADII",
+                "scraped_at": scraped_at,
+                "parser_version": parser_version,
+                "lang": "fr"
+            }
         },
         "designation": clean_text_block(designation),
         "unit_of_measure": pos_tarifaire.get("metadata", {}).get("unit", "U"),
-        "entry_into_force_date": None, # Could be extracted from main_content
-        "taxation": {"taxes": taxes, "source": "ADII"},
-        "documents": {"documents": documents, "source": "ADII"},
-        "agreements": agreements,
-        "import_duty_history": history,
+        "entry_into_force_date": None,
+        "taxation": {"taxes": taxes, "meta": taxation_meta},
+        "documents": {"documents": documents, "meta": documents_meta},
+        "accord_convention": {"accord_convention": agreements, "meta": agreements_meta},
+        "historique": {"items": history, "meta": history_meta},
         "lineage": {
-            "scraped_at": raw.get("scraped_at", datetime.utcnow().isoformat() + "Z"),
+            "scraped_at": scraped_at,
             "status": raw.get("scrape_status", "success"),
-            "parser_version": "v2",
-            "quality": {"encoding_fixed": True, "missing_blocks": []}
+            "url": raw.get("url"),
+            "http": {
+                "status_code": 200,
+                "etag": None,
+                "last_modified": None
+            },
+            "pipeline": {
+                "scraper": "selenium-scraper",
+                "parser_version": parser_version,
+                "schema_version": "v1.0"
+            },
+            "quality": {
+                "encoding_fixed": True,
+                "missing_sections": [],
+                "warnings": []
+            },
+            "sources": ["ADII"],
+            "errors": []
         },
         "raw": raw
     }
-
-    # Validate with Pydantic
+    
+    # ============================================================================
+    # 7. Validate with Pydantic
+    # ============================================================================
     try:
-        # We need to map some fields to match the HSProduct schema names if they differ
-        # For now, let's try to align them
-        validation_data = {
-            "hs_code": hs10,
-            "lineage": product["lineage"],
-            "taxation": product["taxation"],
-            "documents": product["documents"],
-            # HSProduct uses accord_convention and historique as names
-            "accord_convention": {"accord_convention": agreements},
-            "historique": {"items": history}
-        }
-        HSProduct(**validation_data)
-        print(f"✅ Data validation passed for {hs10}")
+        HSProduct(**product)
+        print(f"✅ Data validation passed for {hs_code}")
     except Exception as e:
-        print(f"⚠️ Validation warning for {hs10}: {e}")
-
+        print(f"⚠️ Validation warning for {hs_code}: {e}")
+    
     return product
-

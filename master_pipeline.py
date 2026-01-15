@@ -9,6 +9,7 @@ sys.path.append(str(Path(__file__).parent / "src"))
 sys.path.append(str(Path(__file__).parent / "src" / "etl"))
 
 import scraper
+import init_db
 from etl import main as etl_main
 from etl import resume_utils
 
@@ -27,10 +28,15 @@ def run_pipeline():
     
     # 1. Scraping Layer
     print("\n--- Phase 1: Scraping (Direct Streaming) ---")
-    raw_data = scraper.main(csv_path=csv_input, output_dir=scraper_output_dir, skip_codes=existing_codes, save_to_file=False)
+    # Enable save_to_file=True for debugging purposes (User Request)
+    raw_data = scraper.main(csv_path=csv_input, output_dir=scraper_output_dir, skip_codes=existing_codes, save_to_file=True)
     
-    # 2. ETL Layer
-    print("\n--- Phase 2: ETL (Extract, Transform, Load) ---")
+    # 2. Database Initialization
+    print("\n--- Phase 2: Database Initialization ---")
+    init_db.init_db()
+
+    # 3. ETL Layer
+    print("\n--- Phase 3: ETL (Extract, Transform, Load) ---")
     if not raw_data:
         print("⏭️ No new data to process (either skipped or error).")
     else:

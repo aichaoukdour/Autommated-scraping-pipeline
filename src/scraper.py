@@ -36,7 +36,7 @@ class ScraperConfig:
     wait_timeout: int = 15  # Increased from 10
     page_load_delay: int = 4  # Increased from 3
     section_load_delay: int = 3  # Increased from 2
-    max_workers: int = 1
+    max_workers: int = 3
     headless: bool = True
 
 
@@ -651,7 +651,7 @@ def main(csv_path: Optional[Path] = None, output_dir: Path = Path("."), skip_cod
     
     config = ScraperConfig(
         max_retries=3,  # Restore retries
-        max_workers=1,
+        max_workers=3,
         headless=True
     )
     
@@ -662,7 +662,7 @@ def main(csv_path: Optional[Path] = None, output_dir: Path = Path("."), skip_cod
         logger.error(f"CSV file not found: {csv_path}")
         return []
     
-    results = process_csv_batch(csv_path, config, limit=1, skip_codes=skip_codes)
+    results = process_csv_batch(csv_path, config, limit=15, skip_codes=skip_codes)
     
     if save_to_file:
         save_results(results, output_dir, config)

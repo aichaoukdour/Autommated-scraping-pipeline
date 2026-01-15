@@ -6,7 +6,13 @@ from typing import List, Optional, Dict, Any, Union
 class Meta(BaseModel):
     note: Optional[str] = None
     source: Optional[str] = "ADII"
-    version: Optional[str] = None
+    parser_version: Optional[str] = None
+    scraped_at: Optional[str] = None
+    lang: Optional[str] = "fr"
+    encoding_fixed: Optional[bool] = None
+    original_label_raw: Optional[str] = None
+    snapshot_date: Optional[str] = None
+    edition: Optional[str] = None
 
 class HttpInfo(BaseModel):
     status_code: Optional[int] = None

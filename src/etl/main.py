@@ -34,7 +34,7 @@ def process_data(raw_list: list, dsn: str = DSN):
                 if "validation" in error_msg.lower() or "valueerror" in error_msg.lower():
                     status = "VALIDATION_ERROR"
                 
-                print(f"❌ {status} for {hs_code}: {error_msg}")
+                print(f"ERROR: {status} for {hs_code}: {error_msg}")
                 record_audit_log(hs_code, status, error_msg, duration, conn)
                 conn.rollback()
 
@@ -44,7 +44,7 @@ def process_data(raw_list: list, dsn: str = DSN):
 def run(input_path: str = INPUT_PATH):
     # Load all raw records from file
     raw_list = extract_json(input_path)
-    print(f"🚀 Processing {len(raw_list)} record(s) from file.")
+    print(f"Processing {len(raw_list)} record(s) from file.")
     process_data(raw_list)
 
 
