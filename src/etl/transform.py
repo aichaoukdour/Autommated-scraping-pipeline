@@ -136,29 +136,43 @@ def transform(raw: dict) -> dict:
     parser_version = "v1.3"  # Incremented version
     
     # ============================================================================
-    # 2. Taxation Section
+    # 2. Taxation Section (Enhanced with Code Extraction)
     # ============================================================================
     tax_content = sections.get("Droits et Taxes", {})
-    tax_kv = tax_content.get("key_values", {})
+    raw_tax_text = tax_content.get("raw_text", "")
     taxes = []
     
-    for k, v in tax_kv.items():
-        # Skip metadata fields
-        if any(x in k for x in ["Position tarifaire", "Situation du", "Source", "ADiL"]):
-            continue
+    if raw_tax_text:
+        # Join lines to handle multi-line labels and abbreviations
+        # Example raw: "- Droit d'Importation * ( DI ) : 10 %"
+        clean_raw = " ".join(raw_tax_text.split())
         
-        # Extract code from brackets: "- Droit d'Importation* ( DI )"
-        code_match = re.search(r"\(([^)]+)\)", k)
-        code = code_match.group(1).strip() if code_match else "NA"
+        # Pattern: - [Label] * ( [CODE] ) : [VALUE]
+        tax_matches = re.findall(r"-\s*([^(*]+?)\s*\*?\s*\(\s*([A-Z]+)\s*\)\s*:\s*([^%-]+%)", clean_raw)
         
-        # Clean label
-        label = re.sub(r"^-?\s*", "", k).split("(")[0].strip().replace("*", "")
-        
-        taxes.append({
-            "code": code,
-            "label": clean_text_block(label),
-            "raw": v
-        })
+        for label, code, value in tax_matches:
+            taxes.append({
+                "code": code.strip(),
+                "label": clean_text_block(label.strip().replace("*", "")),
+                "raw": value.strip()
+            })
+            
+    # Fallback to key_values if no matches found via regex
+    if not taxes:
+        tax_kv = tax_content.get("key_values", {})
+        for k, v in tax_kv.items():
+            if any(x in k for x in ["Position tarifaire", "Situation du", "Source", "ADiL"]):
+                continue
+            
+            code_match = re.search(r"\(([^)]+)\)", k)
+            code = code_match.group(1).strip() if code_match else "NA"
+            label = re.sub(r"^-?\s*", "", k).split("(")[0].strip().replace("*", "")
+            
+            taxes.append({
+                "code": code,
+                "label": clean_text_block(label),
+                "raw": v
+            })
     
     taxation_meta = {
         "source": "ADII",
@@ -256,36 +270,61 @@ def transform(raw: dict) -> dict:
         "lang": "fr"
     }
     
-    # === HIERARCHY LABEL EXTRACTION ===
+    # === HIERARCHY LABEL EXTRACTION (Refined) ===
     hs4_label = "NA"
     hs6_label = "NA"
+    hs8_label = "NA"
+
+    # Find where the actual table starts to avoid matching header text/codes
+    table_start_marker = "Codification" if "Codification" in raw_text else "01.01"
+    table_text = raw_text[raw_text.find(table_start_marker):] if table_start_marker in raw_text else raw_text
 
     # Format codes for search: 0101 -> 01.01, 010129 -> 0101.29
     hs4_fmt = f"{hs4_code[:2]}.{hs4_code[2:]}"
     hs6_fmt = f"{hs6_code[:4]}.{hs6_code[4:]}"
+    hs8_part = hs_code[6:8]
 
-    # Extract HS4 Label from raw_text
-    # usage of re.MULTILINE to match start of lines
-    m4 = re.search(rf"^{re.escape(hs4_fmt)}\s*\n(.+?)(?:\n|$)", raw_text, re.MULTILINE)
-    if m4:
-        hs4_label = m4.group(1).strip()
+    def extract_label_after_code(code_str, text):
+        pattern = rf"^{re.escape(code_str)}\s*\n\s*(?![\d\.])(.+?)(?:\n|$)"
+        match = re.search(pattern, text, re.MULTILINE)
+        if match:
+            return match.group(1).strip()
+        return "NA"
 
-    # Extract HS6 Label from raw_text
-    m6 = re.search(rf"^{re.escape(hs6_fmt)}\s*\n(.+?)(?:\n|$)", raw_text, re.MULTILINE)
-    if m6:
-        hs6_label = m6.group(1).strip()
+    # Extract HS4 Label
+    hs4_label = extract_label_after_code(hs4_fmt, table_text)
+    
+    # Extract HS6 Label
+    hs6_label = extract_label_after_code(hs6_fmt, table_text)
+
+    # Extract HS8 Label (special handling because it might be just digits on a line)
+    # Search for HS6, then find the HS8 part after it
+    hs6_index = table_text.find(hs6_fmt)
+    if hs6_index != -1:
+        text_after_hs6 = table_text[hs6_index:]
+        hs8_pattern = rf"^{hs8_part}\s*\n\s*(?![\d\.])(.+?)(?:\n|$)"
+        m8 = re.search(hs8_pattern, text_after_hs6, re.MULTILINE)
+        if m8:
+            hs8_label = m8.group(1).strip()
     
     # Clean labels
     hs4_label = clean_text_block(hs4_label)
     hs6_label = clean_text_block(hs6_label)
+    hs8_label = clean_text_block(hs8_label)
 
-    print(f"DEBUG: Hierarchy Labels - HS4: '{hs4_label}', HS6: '{hs6_label}'")
+    print(f"DEBUG: Hierarchy Labels - HS4: '{hs4_label}', HS6: '{hs6_label}', HS8: '{hs8_label}'")
 
     # ============================================================================
     # 6. Build Final Product
     # ============================================================================
     product = {
         "hs_code": hs_code,
+        "section_label": clean_text_block(section_label),
+        "chapter_label": clean_text_block(chapter_label),
+        "hs4_label": hs4_label,
+        "hs6_label": hs6_label,
+        "hs8_label": hs8_label,
+        "designation": clean_text_block(designation),
         "hierarchy": {
             "section_code": section_code,
             "section_label": clean_text_block(section_label),
@@ -300,7 +339,6 @@ def transform(raw: dict) -> dict:
                 "lang": "fr"
             }
         },
-        "designation": clean_text_block(designation),
         "unit_of_measure": pos_tarifaire.get("metadata", {}).get("unit", "U"),
         "entry_into_force_date": None,
         "taxation": {"taxes": taxes, "meta": taxation_meta},

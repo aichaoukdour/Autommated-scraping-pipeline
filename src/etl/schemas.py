@@ -102,6 +102,14 @@ class HSProduct(BaseModel):
     hs_code: str
     lineage: Lineage
     
+    # Hierarchy Labels
+    section_label: Optional[str] = None
+    chapter_label: Optional[str] = None
+    hs4_label: Optional[str] = None
+    hs6_label: Optional[str] = None
+    hs8_label: Optional[str] = None
+    designation: Optional[str] = None
+    
     # Sections
     taxation: Optional[TaxationSection] = None
     documents: Optional[DocumentsSection] = None

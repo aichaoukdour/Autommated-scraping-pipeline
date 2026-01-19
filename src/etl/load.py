@@ -105,6 +105,11 @@ def load_product(product: dict, conn):
                 INSERT INTO hs_products (
                     hs10,
                     hs6_id,
+                    section_label,
+                    chapter_label,
+                    hs4_label,
+                    hs6_label,
+                    hs8_label,
                     designation,
                     unit_of_measure,
                     entry_into_force_date,
@@ -116,9 +121,14 @@ def load_product(product: dict, conn):
                     raw,
                     updated_at
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, now())
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, now())
                 ON CONFLICT (hs10)
                 DO UPDATE SET
+                    section_label = EXCLUDED.section_label,
+                    chapter_label = EXCLUDED.chapter_label,
+                    hs4_label = EXCLUDED.hs4_label,
+                    hs6_label = EXCLUDED.hs6_label,
+                    hs8_label = EXCLUDED.hs8_label,
                     designation = EXCLUDED.designation,
                     unit_of_measure = EXCLUDED.unit_of_measure,
                     entry_into_force_date = EXCLUDED.entry_into_force_date,
@@ -132,6 +142,11 @@ def load_product(product: dict, conn):
             """, (
                 product["hs_code"],
                 hs6_id,
+                product.get("section_label"),
+                product.get("chapter_label"),
+                product.get("hs4_label"),
+                product.get("hs6_label"),
+                product.get("hs8_label"),
                 product["designation"],
                 product["unit_of_measure"],
                 product["entry_into_force_date"],
