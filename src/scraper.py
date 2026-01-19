@@ -439,7 +439,7 @@ class ADILScraper:
             pass
 
 # Batch Processing
-def scrape_hs_code_task(hs_code: str, config: ScraperConfig) -> Dict:
+def scrape_single_code(hs_code: str, config: ScraperConfig) -> Dict:
     scraper = ADILScraper(config)
     try:
         result = scraper.scrape_hs_code(hs_code)
@@ -447,39 +447,62 @@ def scrape_hs_code_task(hs_code: str, config: ScraperConfig) -> Dict:
     finally:
         scraper.close()
 
-def main():
+def main(
+    csv_path: Optional[Path] = None, 
+    output_dir: Path = Path("."), 
+    skip_codes: Optional[Set[str]] = None, 
+    save_to_file: bool = True,
+    limit: Optional[int] = None
+):
+    """Main execution function compatible with master pipeline"""
     # 1. Setup
-    csv_path = Path("codes.csv") # Expects column 'hs_code'
-    output_path = Path("adil_data.json")
-    
-    config = ScraperConfig(headless=True, max_workers=2)
+    config = ScraperConfig(headless=True, max_workers=3)
+    if csv_path is None:
+        csv_path = Path("Code Sh Import - Feuil.csv")
     
     # 2. Read Codes
     codes = []
     if csv_path.exists():
         with open(csv_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
-            codes = [row['hs_code'] for row in reader if row.get('hs_code')]
+            codes = [row['hs_code'].strip() for row in reader if row.get('hs_code')]
     else:
-        logger.error("CSV file not found. Creating dummy list.")
-        codes = ["0101210000", "8517620000"] # Examples
-    
-    # 3. Run Pipeline
-    results = []
+        logger.error(f"CSV file not found: {csv_path}")
+        return []
+
+    # 3. Apply Filters
+    if skip_codes:
+        initial_count = len(codes)
+        codes = [c for c in codes if c not in skip_codes]
+        logger.info(f"Skipping {initial_count - len(codes)} already processed codes")
+
+    if limit:
+        codes = codes[:limit]
+        logger.info(f"Limiting to first {limit} codes")
+
+    if not codes:
+        logger.info("No codes to process.")
+        return []
+
+    # 4. Run Batch
+    logger.info(f"Starting batch process for {len(codes)} codes (Streaming Mode)...")
     with ThreadPoolExecutor(max_workers=config.max_workers) as executor:
-        future_map = {executor.submit(scrape_hs_code_task, code, config): code for code in codes}
+        future_map = {executor.submit(scrape_single_code, code, config): code for code in codes}
         
         for future in as_completed(future_map):
             code = future_map[future]
-            res = future.result()
-            results.append(res)
-            logger.info(f"Finished {code} - Found {len(res['sections'])} sections")
+            try:
+                res = future.result()
+                logger.info(f"✅ Finished Scraping {code}")
+                
+                # Yield result immediately for streaming
+                yield res
+                
+            except Exception as e:
+                logger.error(f"❌ Error on {code}: {e}")
 
-    # 4. Save
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(results, f, ensure_ascii=False, indent=2)
-    
-    logger.info(f"Done. Saved to {output_path}")
+    # 5. Finalize
+    logger.info("Batch scraping sequence completed.")
 
 if __name__ == "__main__":
-    main()
+    main(limit=2)

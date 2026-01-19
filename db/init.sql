@@ -102,11 +102,15 @@ CREATE TABLE IF NOT EXISTS hs_products (
   hs8_label TEXT,
   hs8_present BOOLEAN NOT NULL DEFAULT TRUE,
 
+  -- hierarchy labels
+  section_label TEXT,
+  chapter_label TEXT,
+  hs4_label TEXT,
+  hs6_label TEXT,
+
   -- champs utiles
   designation TEXT,
-  description_remarkable TEXT,
   unit_of_measure TEXT,
-  entry_into_force_date DATE,
 
   -- colonnes JSONB dédiées (agentic-friendly)
   taxation JSONB NOT NULL DEFAULT '{}'::jsonb,

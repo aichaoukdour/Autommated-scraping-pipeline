@@ -38,57 +38,59 @@ def transform(raw: dict) -> dict:
     kv = pos_tarifaire.get("key_values", {})
     raw_text = pos_tarifaire.get("raw_text", "")
     
-    # === SECTION EXTRACTION (Improved) ===
+    # === SECTION EXTRACTION (Robust) ===
     section_code = "NA"
     section_label = "NA"
     
     section_raw = kv.get("SECTION", "")
-    if section_raw:
-        # Expected format: "01 - Animaux vivants et produits du règne animal"
-        match = re.match(r"^(\d{2})\s*[\-–—]\s*(.+)$", section_raw.strip())
+    if not section_raw and raw_text:
+        # Try to find SECTION in raw text directly with multi-line support
+        # Pattern: SECTION followed by colon, optional whitespace, then 2 digits
+        s_match = re.search(r"SECTION\s*:\s*(\d{2})", raw_text)
+        if s_match:
+            section_code = s_match.group(1)
+            # Find the label: usually the rest of the line or subsequent lines until next keyword
+            # But for simplicity, we'll try to get it from the KV or a simpler regex
+            s_label_match = re.search(rf"SECTION\s*:\s*{section_code}\s*[\-–—]\s*(.+?)(?:\n|CHAPITRE|$)", raw_text, re.DOTALL | re.I)
+            if s_label_match:
+                section_label = s_label_match.group(1).strip()
+    
+    if section_raw and section_code == "NA":
+        match = re.match(r"^(\d{2})\s*[\-–—]\s*(.+)$", section_raw.strip(), re.DOTALL)
         if match:
             section_code = match.group(1)
             section_label = match.group(2).strip()
         else:
-            # Fallback: split on first dash
             parts = section_raw.split("-", 1)
             if len(parts) == 2:
                 section_code = parts[0].strip()
                 section_label = parts[1].strip()
-    
-    # Fallback to raw_text search if not found
-    if section_code == "NA":
-        s_text_match = re.search(r"SECTION\s*:\s*(\d{2})\s*[\-–—]\s*(.+?)(?:\n|$)", raw_text, re.I)
-        if s_text_match:
-            section_code = s_text_match.group(1)
-            section_label = s_text_match.group(2).strip()
-    
+
     print(f"DEBUG: Section extracted - code='{section_code}', label='{section_label[:50]}...'")
     
-    # === CHAPTER EXTRACTION (Improved) ===
+    # === CHAPTER EXTRACTION (Robust) ===
     chapter_code = "NA"
     chapter_label = "NA"
     
     chapter_raw = kv.get("CHAPITRE", "")
-    if chapter_raw:
-        # Expected format: "01 - Animaux vivants"
-        match = re.match(r"^(\d{2})\s*[\-–—]\s*(.+)$", chapter_raw.strip())
+    if not chapter_raw and raw_text:
+        c_match = re.search(r"CHAPITRE\s*:\s*(\d{2})", raw_text)
+        if c_match:
+            chapter_code = c_match.group(1)
+            c_label_match = re.search(rf"CHAPITRE\s*:\s*{chapter_code}\s*[\-–—]\s*(.+?)(?:\n|DESIGNATION|$)", raw_text, re.DOTALL | re.I)
+            if c_label_match:
+                chapter_label = c_label_match.group(1).strip()
+
+    if chapter_raw and chapter_code == "NA":
+        match = re.match(r"^(\d{2})\s*[\-–—]\s*(.+)$", chapter_raw.strip(), re.DOTALL)
         if match:
             chapter_code = match.group(1)
             chapter_label = match.group(2).strip()
         else:
-            # Fallback: split on first dash
             parts = chapter_raw.split("-", 1)
             if len(parts) == 2:
                 chapter_code = parts[0].strip()
                 chapter_label = parts[1].strip()
-    
-    # Fallback to raw_text search if not found
-    if chapter_code == "NA":
-        c_text_match = re.search(r"CHAPITRE\s*:\s*(\d{2})\s*[\-–—]\s*(.+?)(?:\n|$)", raw_text, re.I)
-        if c_text_match:
-            chapter_code = c_text_match.group(1)
-            chapter_label = c_text_match.group(2).strip()
     
     print(f"DEBUG: Chapter extracted - code='{chapter_code}', label='{chapter_label[:50]}...'")
     sys.stdout.flush()
