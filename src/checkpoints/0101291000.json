@@ -1,0 +1,233 @@
+{
+  "hs_code": "0101291000",
+  "scraped_at": "2026-01-19T12:48:53.816470",
+  "scrape_status": "partial",
+  "main_content": {},
+  "sections": [
+    {
+      "section_name": "Position tarifaire",
+      "section_type": "unavailable",
+      "content": {
+        "raw_text": "N/A",
+        "raw_html": "",
+        "metadata": {},
+        "key_values": {},
+        "tables": [],
+        "length": 0
+      },
+      "scraped_at": "2026-01-19T12:48:59.017713",
+      "order": 0,
+      "status": "not_available"
+    },
+    {
+      "section_name": "Version papier",
+      "section_type": "unavailable",
+      "content": {
+        "raw_text": "N/A",
+        "raw_html": "",
+        "metadata": {},
+        "key_values": {},
+        "tables": [],
+        "length": 0
+      },
+      "scraped_at": "2026-01-19T12:49:04.867583",
+      "order": 1,
+      "status": "not_available"
+    },
+    {
+      "section_name": "Droits et Taxes",
+      "section_type": "unavailable",
+      "content": {
+        "raw_text": "N/A",
+        "raw_html": "",
+        "metadata": {},
+        "key_values": {},
+        "tables": [],
+        "length": 0
+      },
+      "scraped_at": "2026-01-19T12:49:10.618116",
+      "order": 2,
+      "status": "not_available"
+    },
+    {
+      "section_name": "Documents et Normes",
+      "section_type": "unavailable",
+      "content": {
+        "raw_text": "N/A",
+        "raw_html": "",
+        "metadata": {},
+        "key_values": {},
+        "tables": [],
+        "length": 0
+      },
+      "scraped_at": "2026-01-19T12:49:16.826429",
+      "order": 3,
+      "status": "not_available"
+    },
+    {
+      "section_name": "Accords et Convention",
+      "section_type": "unavailable",
+      "content": {
+        "raw_text": "N/A",
+        "raw_html": "",
+        "metadata": {},
+        "key_values": {},
+        "tables": [],
+        "length": 0
+      },
+      "scraped_at": "2026-01-19T12:49:47.400707",
+      "order": 4,
+      "status": "not_available"
+    },
+    {
+      "section_name": "Historique Droit d'Importation",
+      "section_type": "unavailable",
+      "content": {
+        "raw_text": "N/A",
+        "raw_html": "",
+        "metadata": {},
+        "key_values": {},
+        "tables": [],
+        "length": 0
+      },
+      "scraped_at": "2026-01-19T12:49:53.488609",
+      "order": 5,
+      "status": "not_available"
+    },
+    {
+      "section_name": "Importations",
+      "section_type": "unavailable",
+      "content": {
+        "raw_text": "N/A",
+        "raw_html": "",
+        "metadata": {},
+        "key_values": {},
+        "tables": [],
+        "length": 0
+      },
+      "scraped_at": "2026-01-19T12:49:59.302968",
+      "order": 6,
+      "status": "not_available"
+    },
+    {
+      "section_name": "Exportations",
+      "section_type": "unavailable",
+      "content": {
+        "raw_text": "N/A",
+        "raw_html": "",
+        "metadata": {},
+        "key_values": {},
+        "tables": [],
+        "length": 0
+      },
+      "scraped_at": "2026-01-19T12:50:05.958589",
+      "order": 7,
+      "status": "not_available"
+    },
+    {
+      "section_name": "Fournisseurs",
+      "section_type": "unavailable",
+      "content": {
+        "raw_text": "N/A",
+        "raw_html": "",
+        "metadata": {},
+        "key_values": {},
+        "tables": [],
+        "length": 0
+      },
+      "scraped_at": "2026-01-19T12:50:12.155870",
+      "order": 8,
+      "status": "not_available"
+    },
+    {
+      "section_name": "Clients",
+      "section_type": "unavailable",
+      "content": {
+        "raw_text": "N/A",
+        "raw_html": "",
+        "metadata": {},
+        "key_values": {},
+        "tables": [],
+        "length": 0
+      },
+      "scraped_at": "2026-01-19T12:50:18.181878",
+      "order": 9,
+      "status": "not_available"
+    },
+    {
+      "section_name": "Nationale",
+      "section_type": "unavailable",
+      "content": {
+        "raw_text": "N/A",
+        "raw_html": "",
+        "metadata": {},
+        "key_values": {},
+        "tables": [],
+        "length": 0
+      },
+      "scraped_at": "2026-01-19T12:50:23.994092",
+      "order": 10,
+      "status": "not_available"
+    },
+    {
+      "section_name": "Internationale",
+      "section_type": "unavailable",
+      "content": {
+        "raw_text": "N/A",
+        "raw_html": "",
+        "metadata": {},
+        "key_values": {},
+        "tables": [],
+        "length": 0
+      },
+      "scraped_at": "2026-01-19T12:50:29.199782",
+      "order": 11,
+      "status": "not_available"
+    },
+    {
+      "section_name": "Importateurs",
+      "section_type": "unavailable",
+      "content": {
+        "raw_text": "N/A",
+        "raw_html": "",
+        "metadata": {},
+        "key_values": {},
+        "tables": [],
+        "length": 0
+      },
+      "scraped_at": "2026-01-19T12:50:34.689532",
+      "order": 12,
+      "status": "not_available"
+    },
+    {
+      "section_name": "Exportateurs",
+      "section_type": "unavailable",
+      "content": {
+        "raw_text": "N/A",
+        "raw_html": "",
+        "metadata": {},
+        "key_values": {},
+        "tables": [],
+        "length": 0
+      },
+      "scraped_at": "2026-01-19T12:50:40.642316",
+      "order": 13,
+      "status": "not_available"
+    }
+  ],
+  "metrics": {
+    "duration_seconds": 113.47,
+    "retry_count": 0,
+    "sections_attempted": 14,
+    "sections_successful": 0,
+    "sections_failed": 14,
+    "success_rate": 0.0
+  },
+  "summary": {
+    "total_sections": 14,
+    "successful_sections": 0,
+    "failed_sections": 14,
+    "section_types": {}
+  },
+  "error": null
+}

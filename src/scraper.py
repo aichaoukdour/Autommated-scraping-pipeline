@@ -1,6 +1,6 @@
 """
-Moroccan Customs ADIL Scraper - Refactored
-Production-ready web scraper with clean architecture
+Moroccan Customs ADIL Scraper - BeautifulSoup Enhanced
+Production-ready web scraper with clean architecture and robust HTML parsing.
 """
 
 import json
@@ -16,6 +16,9 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import contextmanager
 import logging
 
+# --- BeautifulSoup Import ---
+from bs4 import BeautifulSoup, Tag
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -26,19 +29,17 @@ from selenium.common.exceptions import (
     TimeoutException
 )
 
-
 # Configuration
 @dataclass
 class ScraperConfig:
     """Scraper configuration settings"""
     base_url: str = "https://www.douane.gov.ma/adil/c_bas_test_1.asp"
     max_retries: int = 3
-    wait_timeout: int = 15  # Increased from 10
-    page_load_delay: int = 4  # Increased from 3
-    section_load_delay: int = 3  # Increased from 2
+    wait_timeout: int = 5
+    page_load_delay: int = 3
+    section_load_delay: int = 2
     max_workers: int = 3
     headless: bool = True
-
 
 # Data Models
 @dataclass
@@ -47,9 +48,8 @@ class ContentData:
     raw_text: str
     metadata: Dict[str, str]
     key_values: Dict[str, str]
-    tables: List[str]
+    tables: List[Dict[str, Any]] 
     length: int
-
 
 @dataclass
 class SectionData:
@@ -60,7 +60,6 @@ class SectionData:
     scraped_at: str
     order: int
     status: Optional[str] = None
-
 
 @dataclass
 class ScrapeResult:
@@ -73,150 +72,228 @@ class ScrapeResult:
     summary: Optional[Dict[str, Any]] = None
     error: Optional[str] = None
 
-
 # Logging Setup
 def setup_logging(level: int = logging.INFO) -> logging.Logger:
-    """Configure logging with consistent format"""
     logging.basicConfig(
         level=level,
         format='%(asctime)s [%(levelname)s] %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
+        datefmt='%H:%M:%S'
     )
-    return logging.getLogger(__name__)
-
+    return logging.getLogger("ADIL_Scraper")
 
 logger = setup_logging()
 
-
-# Data Processing
+# --- BeautifulSoup Logic ---
 class TextProcessor:
-    """Extracts structured data from raw text"""
+    """Extracts structured data from HTML content using BeautifulSoup"""
     
     KEY_VALUE_PATTERN = re.compile(r'([^:]+?)\s*(?:\([^)]*\))?\s*:\s*([^\n]+)')
-    YEAR_PATTERN = re.compile(r'\b(19|20)\d{2}\b')
     
     METADATA_PATTERNS = {
-        'position': r'Position tarifaire\s*:?\s*([^\n]+)',
-        'source': r'Source\s*:?\s*([^\n]+)',
-        'date': r'Situation du\s*:?\s*([^\n]+)',
-        'period': r'Période.*?:?\s*([^\n]+)',
-        'intercom': r'Intercom\s*:?\s*([^\n]+)',
-        'unit': r'Unité.*?:?\s*([^\n]+)'
+        'position': r'Position tarifaire\s*:?\s*([^\n<]+)',
+        'source': r'Source\s*:?\s*([^\n<]+)',
+        'date': r'Situation du\s*:?\s*([^\n<]+)',
+        'unit': r'Unité.*?:?\s*([^\n<]+)'
     }
     
     SECTION_TYPE_KEYWORDS = {
-        'statistics': [r'\d{4}.*\d{4}', r'\d+[,\s]\d+'],
-        'financial': [r'\d+\.?\d*\s*%'],
-        'geography': ['pays', 'country', 'france', 'espagne', 'allemagne'],
-        'classification': [r'section|chapitre|branche|division'],
-        'regulatory': ['accord', 'treaty', 'restriction', 'prohibition', 'document']
+        'statistics': [r'\d{4}.*\d{4}', r'importation', 'exportation', 'statistique'],
+        'financial': [r'\d+\.?\d*\s*%', 'droit', 'taxe', 'tva'],
+        'geography': ['pays', 'country', 'ue', 'agadir', 'turquie'],
+        'regulatory': ['accord', 'restriction', 'prohibition', 'document', 'norme']
     }
-    
+
+    @classmethod
+    def process_content(cls, html_content: str) -> ContentData:
+        """Process HTML into structured content using BeautifulSoup"""
+        if not html_content:
+            return cls._empty_content()
+
+        soup = BeautifulSoup(html_content, 'html.parser')
+        
+        # Remove script and style elements to clean up text extraction
+        for script in soup(["script", "style"]):
+            script.decompose()
+
+        # Get clean text
+        clean_text = soup.get_text(separator="\n", strip=True)
+        
+        return ContentData(
+            raw_text=clean_text,
+            metadata=cls.extract_metadata(clean_text),
+            key_values=cls.extract_key_value_pairs(clean_text),
+            tables=cls.extract_html_tables(soup),  # Pass soup object directly
+            length=len(clean_text)
+        )
+
+    @staticmethod
+    def _empty_content() -> ContentData:
+        return ContentData("", {}, {}, [], 0)
+
+    @classmethod
+    def extract_html_tables(cls, soup: BeautifulSoup) -> List[Dict[str, Any]]:
+        """
+        Extracts data from actual HTML <table> tags.
+        Filters out layout tables (tables used for visual structure only).
+        """
+        tables_data = []
+        html_tables = soup.find_all("table")
+
+        for table in html_tables:
+            # Skip tables inside other tables (nested) to avoid duplication
+            if table.find_parent("table"):
+                continue
+
+            parsed_table = cls._parse_html_table(table)
+            if parsed_table:
+                tables_data.append(parsed_table)
+        
+        return tables_data
+
+    @classmethod
+    def _parse_html_table(cls, table_tag: Tag) -> Optional[Dict[str, Any]]:
+        """Parses a single BeautifulSoup table tag"""
+        rows = table_tag.find_all("tr")
+        if not rows or len(rows) < 2:
+            return None
+
+        # Strategy: Look for the best candidate for a header row
+        # Usually the first row with <th> or the first row with multiple <td>
+        header_row = None
+        data_start_index = 0
+
+        # Try to find a row with <th> tags
+        for i, row in enumerate(rows[:3]): # Check first 3 rows
+            if row.find("th"):
+                header_row = row
+                data_start_index = i + 1
+                break
+        
+        # Fallback: First row with meaningful text if no <th> found
+        if not header_row:
+            header_row = rows[0]
+            data_start_index = 1
+
+        # Extract headers
+        headers = [cls._clean_cell(cell.get_text()) for cell in header_row.find_all(["th", "td"])]
+        
+        # Filter out purely empty header lists
+        if not any(h for h in headers if h):
+            return None
+
+        data_rows = []
+        for row in rows[data_start_index:]:
+            cells = row.find_all(["td", "th"])
+            
+            # Simple heuristic: ignore rows that don't match header count roughly
+            # (Allows for slight mismatch due to colspans, but skips clearly wrong rows)
+            if len(cells) == 0:
+                continue
+
+            row_data = {}
+            has_data = False
+            
+            # Safe looping using zip (stops at shortest list)
+            for idx, cell in enumerate(cells):
+                if idx < len(headers) and headers[idx]:
+                    val = cls._normalize_cell(cell.get_text())
+                    row_data[headers[idx]] = val
+                    if val:
+                        has_data = True
+            
+            if has_data:
+                data_rows.append(row_data)
+
+        if not data_rows:
+            return None
+
+        return {
+            "headers": [h for h in headers if h],
+            "rows": data_rows,
+            "row_count": len(data_rows)
+        }
+
+    @staticmethod
+    def _clean_cell(text: str) -> str:
+        """Clean header text"""
+        # Replace non-breaking spaces and newlines
+        text = text.replace('\xa0', ' ').replace('\n', ' ')
+        return " ".join(text.strip().split())
+
+    @staticmethod
+    def _normalize_cell(value: str) -> Any:
+        v = value.strip()
+        if not v: return ""
+        
+        # Percentages
+        if v.endswith("%"):
+            try:
+                return float(v.replace("%", "").replace(",", ".")) / 100
+            except ValueError:
+                return v
+        
+        return v
+
     @classmethod
     def extract_key_value_pairs(cls, text: str) -> Dict[str, str]:
-        """Extract key-value pairs from text"""
         pairs = {}
         for key, value in cls.KEY_VALUE_PATTERN.findall(text):
             clean_key = key.strip()
             clean_value = value.strip()
-            if clean_key and clean_value:
+            if clean_key and clean_value and len(clean_value) < 200: # limit length to avoid false positives
                 pairs[clean_key] = clean_value
         return pairs
     
     @classmethod
-    def extract_tables(cls, text: str) -> List[str]:
-        """Extract table-like structures from text"""
-        tables = []
-        lines = [l.strip() for l in text.split('\n') if l.strip()]
-        current_table = []
-        
-        for line in lines:
-            if cls.YEAR_PATTERN.search(line):
-                current_table.append(line)
-            elif current_table and any(c.isdigit() for c in line):
-                current_table.append(line)
-            else:
-                if len(current_table) > 1:
-                    tables.append('\n'.join(current_table))
-                current_table = []
-        
-        if len(current_table) > 1:
-            tables.append('\n'.join(current_table))
-        
-        return tables
-    
-    @classmethod
-    def detect_section_type(cls, section_name: str, content: str) -> str:
-        """Detect section type based on content patterns"""
-        content_lower = content.lower()
-        scores = defaultdict(int)
-        
-        for section_type, patterns in cls.SECTION_TYPE_KEYWORDS.items():
-            for pattern in patterns:
-                if isinstance(pattern, str) and not pattern.startswith(r'\d'):
-                    if pattern in content_lower:
-                        scores[section_type] += 2
-                else:
-                    if re.search(pattern, content):
-                        scores[section_type] += 3
-        
-        return max(scores.items(), key=lambda x: x[1])[0] if scores else 'general'
-    
-    @classmethod
     def extract_metadata(cls, text: str) -> Dict[str, str]:
-        """Extract metadata fields from text"""
         metadata = {}
         for key, pattern in cls.METADATA_PATTERNS.items():
             match = re.search(pattern, text, re.IGNORECASE)
             if match:
                 metadata[key] = match.group(1).strip()
         return metadata
-    
+
     @classmethod
-    def process_content(cls, text: str) -> ContentData:
-        """Process raw text into structured content"""
-        return ContentData(
-            raw_text=text,
-            metadata=cls.extract_metadata(text),
-            key_values=cls.extract_key_value_pairs(text),
-            tables=cls.extract_tables(text),
-            length=len(text)
-        )
+    def detect_section_type(cls, section_name: str, content: str) -> str:
+        clean_content = re.sub(r'<[^>]+>', ' ', content).lower()
+        section_name_lower = section_name.lower()
+        
+        # Check section name first (stronger signal)
+        for s_type, keywords in cls.SECTION_TYPE_KEYWORDS.items():
+            if any(k in section_name_lower for k in keywords if isinstance(k, str) and not k.startswith('\\')):
+                return s_type
+
+        # Check content
+        scores = defaultdict(int)
+        for section_type, patterns in cls.SECTION_TYPE_KEYWORDS.items():
+            for pattern in patterns:
+                if re.search(pattern, clean_content):
+                    scores[section_type] += 1
+        
+        if not scores:
+            return 'general_info'
+        return max(scores.items(), key=lambda x: x[1])[0]
 
 
 # Web Driver Management
 class WebDriverManager:
-    """Manages Chrome WebDriver lifecycle"""
-    
     @staticmethod
     def create_driver(config: ScraperConfig) -> webdriver.Chrome:
-        """Create configured Chrome WebDriver"""
         options = webdriver.ChromeOptions()
-        
         if config.headless:
             options.add_argument('--headless=new')
         
         options.add_argument('--no-sandbox')
         options.add_argument('--disable-dev-shm-usage')
-        options.add_argument('--disable-blink-features=AutomationControlled')
-        options.add_experimental_option("excludeSwitches", ["enable-automation"])
-        options.add_experimental_option('useAutomationExtension', False)
+        options.add_argument('--log-level=3') # Suppress selenium logs
         options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
         
         driver = webdriver.Chrome(options=options)
-        
-        # Hide webdriver detection
-        driver.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {
-            'source': 'Object.defineProperty(navigator, "webdriver", {get: () => undefined});'
-        })
-        
         return driver
 
 
 # Core Scraper
 class ADILScraper:
-    """Scrapes HS code data from Moroccan customs website"""
-    
     SKIP_KEYWORDS = ['nouvelle recherche', 'recherche', 'retour', 'accueil', 'home']
     
     def __init__(self, config: ScraperConfig = None):
@@ -226,8 +303,7 @@ class ADILScraper:
         self.processor = TextProcessor()
     
     def scrape_hs_code(self, hs_code: str) -> ScrapeResult:
-        """Scrape data for a single HS code"""
-        logger.info(f"Scraping HS code: {hs_code}")
+        logger.info(f"Processing HS Code: {hs_code}")
         
         try:
             self._submit_search(hs_code)
@@ -242,12 +318,11 @@ class ADILScraper:
             
             self._scrape_main_content(result)
             self._scrape_all_sections(result)
-            self._add_summary_stats(result)
             
             return result
             
         except Exception as e:
-            logger.error(f"Error scraping {hs_code}: {e}")
+            logger.error(f"Critical error on {hs_code}: {str(e)}")
             return ScrapeResult(
                 hs_code=hs_code,
                 scraped_at=datetime.now().isoformat(),
@@ -258,418 +333,153 @@ class ADILScraper:
             )
     
     def _submit_search(self, hs_code: str) -> None:
-        """Submit search form with HS code"""
         self.driver.get(self.config.base_url)
-        time.sleep(self.config.page_load_delay)
+        # Handle potential alert boxes or popups here if they existed
         
-        input_field = self.driver.find_element(By.NAME, "lposition")
+        input_field = self.wait.until(EC.presence_of_element_located((By.NAME, "lposition")))
+        input_field.clear()
         input_field.send_keys(hs_code)
-        self.driver.find_element(By.NAME, "submit").click()
         
-        time.sleep(self.config.page_load_delay + 1)
-        logger.debug(f"Form submitted for {hs_code}")
+        submit_btn = self.driver.find_element(By.NAME, "submit")
+        submit_btn.click()
+        
+        # Wait for frame 2 to load which indicates success
+        try:
+            self.wait.until(EC.frame_to_be_available_and_switch_to_it(2))
+            self.driver.switch_to.default_content() # Switch back
+        except TimeoutException:
+            raise Exception("Search yielded no results or timed out.")
     
     def _scrape_main_content(self, result: ScrapeResult) -> None:
-        """Scrape main content frame"""
         try:
             self.driver.switch_to.default_content()
             self.driver.switch_to.frame(2)
             
-            body = self.driver.find_element(By.TAG_NAME, "body")
-            main_text = body.text.strip()
+            # Grab HTML for BeautifulSoup
+            html_content = self.driver.find_element(By.TAG_NAME, "body").get_attribute("outerHTML")
             
-            content = self.processor.process_content(main_text)
+            content = self.processor.process_content(html_content)
             result.main_content = asdict(content)
             
-            logger.debug(f"Main content processed: {len(main_text)} chars")
-            
         except Exception as e:
-            logger.warning(f"Failed to scrape main content: {e}")
+            logger.warning(f"Main content scrape failed: {e}")
             result.scrape_status = "partial"
-    
+
     def _scrape_all_sections(self, result: ScrapeResult) -> None:
-        """Scrape all available sections"""
-        try:
-            section_links = self._get_section_links()
-            logger.info(f"Found {len(section_links)} sections")
-            
-            for idx, link_info in enumerate(section_links):
-                self._scrape_section_with_retry(result, link_info, idx, len(section_links))
-                
-        except Exception as e:
-            logger.error(f"Failed to scrape sections: {e}")
-            result.scrape_status = "partial"
-    
+        section_links = self._get_section_links()
+        
+        for idx, link_info in enumerate(section_links):
+            # Pass retry attempt 0
+            self._process_single_section(result, link_info, idx)
+
     def _get_section_links(self) -> List[Dict[str, str]]:
-        """Extract section links from sidebar"""
         self.driver.switch_to.default_content()
-        self.driver.switch_to.frame(1)
+        self.driver.switch_to.frame(1) # Navigation frame
         
         links = self.driver.find_elements(By.TAG_NAME, "a")
         section_links = []
         seen = set()
         
         for link in links:
-            try:
-                # Normalize whitespace to match XPath normalize-space() behavior
-                raw_text = link.text or link.get_attribute("textContent")
-                text = " ".join(raw_text.split())
-                href = link.get_attribute("href")
+            txt = link.get_attribute("textContent").strip()
+            # Clean spaces
+            txt = " ".join(txt.split())
+            
+            if txt and txt not in seen and not any(k in txt.lower() for k in self.SKIP_KEYWORDS):
+                section_links.append({"name": txt})
+                seen.add(txt)
                 
-                if (text and text not in seen and 
-                    not any(kw in text.lower() for kw in self.SKIP_KEYWORDS)):
-                    section_links.append({"name": text, "href": href})
-                    seen.add(text)
-            except:
-                continue
-        
         return section_links
-    
-    def _scrape_section_with_retry(
-        self, 
-        result: ScrapeResult, 
-        link_info: Dict[str, str], 
-        idx: int, 
-        total: int
-    ) -> None:
-        """Scrape a section with retry logic"""
+
+    def _process_single_section(self, result: ScrapeResult, link_info: Dict[str, str], idx: int):
         section_name = link_info["name"]
         
-        for attempt in range(self.config.max_retries):
-            try:
-                self._scrape_section(result, section_name, idx, total)
-                return
-            except (NoSuchElementException, StaleElementReferenceException, TimeoutException) as e:
-                if attempt < self.config.max_retries - 1:
-                    logger.warning(f"Retry {attempt + 1} for {section_name} due to {type(e).__name__}")
-                    logger.debug(f"Exception details: {e}")
-                    time.sleep(2)
-                    self.driver.switch_to.default_content()
-                else:
-                    logger.warning(f"Failed to scrape {section_name} after {self.config.max_retries} attempts. Last error: {type(e).__name__}")
-                    logger.exception(f"Final exception details for {section_name}:")
-                    self._add_unavailable_section(result, section_name, idx)
-            except Exception as e:
-                logger.error(f"Error scraping {section_name}: {e}")
-                logger.exception("Full traceback:")
-                break
-    
-    def _scrape_section(
-        self, 
-        result: ScrapeResult, 
-        section_name: str, 
-        idx: int, 
-        total: int
-    ) -> None:
-        """Scrape a single section"""
-        # Navigate to section
-        self.driver.switch_to.default_content()
-        time.sleep(1.5)  # Increased wait time
-        self.driver.switch_to.frame(1)
-        
-        # Find link by text iteration (more robust than XPath)
-        links = self.wait.until(EC.presence_of_all_elements_located((By.TAG_NAME, "a")))
-        target_link = None
-        
-        for link in links:
-            # Normalize whitespace
-            raw_text = link.get_attribute("textContent") or ""
-            text = " ".join(raw_text.split())
-            
-            if text == section_name:
-                target_link = link
-                break
-        
-        if not target_link:
-            raise NoSuchElementException(f"Link not found for section: {section_name}")
-            
-        self.driver.execute_script("arguments[0].scrollIntoView(true);", target_link)
-        time.sleep(1)
-        
         try:
-            target_link.click()
+            # 1. Click Link
+            self.driver.switch_to.default_content()
+            self.driver.switch_to.frame(1)
+            
+            # Find link again (DOM refresh)
+            links = self.driver.find_elements(By.TAG_NAME, "a")
+            target = next((l for l in links if " ".join(l.text.split()) == section_name), None)
+            
+            if not target:
+                logger.warning(f"Link lost: {section_name}")
+                return
+
+            self.driver.execute_script("arguments[0].click();", target)
+            time.sleep(self.config.section_load_delay)
+            
+            # 2. Extract Content
+            self.driver.switch_to.default_content()
+            self.driver.switch_to.frame(2) # Content frame
+            
+            body = self.driver.find_element(By.TAG_NAME, "body")
+            html_content = body.get_attribute("outerHTML")
+            
+            # 3. Process with BeautifulSoup
+            processed = self.processor.process_content(html_content)
+            section_type = self.processor.detect_section_type(section_name, processed.raw_text)
+            
+            result.sections.append({
+                "section_name": section_name,
+                "section_type": section_type,
+                "content": asdict(processed),
+                "order": idx,
+                "scraped_at": datetime.now().isoformat()
+            })
+            
+        except Exception as e:
+            logger.warning(f"Failed section {section_name}: {e}")
+
+    def close(self):
+        try:
+            self.driver.quit()
         except:
-            self.driver.execute_script("arguments[0].click();", target_link)
-        
-        time.sleep(self.config.section_load_delay + 1)  # Extra wait for content
-        
-        # Extract content with multiple attempts
-        self.driver.switch_to.default_content()
-        self.driver.switch_to.frame(2)
-        
-        # Wait for content to load - try multiple strategies
-        content_text = self._extract_frame_content()
-        is_empty = not content_text or len(content_text) < 10
-        
-        section_data = self._build_section_data(
-            section_name, 
-            "N/A" if is_empty else content_text, 
-            idx
-        )
-        
-        result.sections.append(section_data)
-        logger.info(f"[{idx+1}/{total}] {section_name}: {section_data['section_type']}")
-    
-    def _build_xpath(self, section_name: str) -> str:
-        """Build XPath for section link"""
-        quote = '"' if "'" in section_name else "'"
-        # Use . instead of text() to handle nested elements (e.g. <b>Text</b>)
-        return f'//a[normalize-space(.)={quote}{section_name}{quote}]'
-    
-    def _extract_frame_content(self) -> str:
-        """Extract content from frame with multiple fallback strategies"""
-        strategies = [
-            # Strategy 1: Wait for body and get text
-            lambda: self._wait_and_get_body_text(),
-            # Strategy 2: Wait longer and try again
-            lambda: self._wait_longer_and_retry(),
-            # Strategy 3: Get all visible text from page
-            lambda: self._get_all_visible_text(),
-        ]
-        
-        for strategy in strategies:
-            try:
-                content = strategy()
-                if content and len(content) >= 10:
-                    return content
-            except Exception as e:
-                logger.debug(f"Strategy failed: {e}")
-                continue
-        
-        return ""
-    
-    def _wait_and_get_body_text(self) -> str:
-        """Wait for body element and extract text"""
-        body = self.wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
-        time.sleep(1)  # Give content time to render
-        return body.text.strip()
-    
-    def _wait_longer_and_retry(self) -> str:
-        """Wait longer for dynamic content"""
-        time.sleep(3)
-        body = self.driver.find_element(By.TAG_NAME, "body")
-        return body.text.strip()
-    
-    def _get_all_visible_text(self) -> str:
-        """Get all visible text using JavaScript"""
-        script = """
-        return document.body.innerText || document.body.textContent || '';
-        """
-        content = self.driver.execute_script(script)
-        return content.strip() if content else ""
-    
-    def _build_section_data(self, section_name: str, content: str, idx: int) -> Dict[str, Any]:
-        """Build section data dictionary"""
-        is_empty = content == "N/A"
-        
-        if is_empty:
-            processed_content = ContentData(
-                raw_text="N/A",
-                metadata={},
-                key_values={},
-                tables=[],
-                length=0
-            )
-        else:
-            processed_content = self.processor.process_content(content)
-        
-        return {
-            "section_name": section_name,
-            "section_type": "empty" if is_empty else self.processor.detect_section_type(section_name, content),
-            "content": asdict(processed_content),
-            "scraped_at": datetime.now().isoformat(),
-            "order": idx
-        }
-    
-    def _add_unavailable_section(self, result: ScrapeResult, section_name: str, idx: int) -> None:
-        """Add placeholder for unavailable section"""
-        result.sections.append({
-            "section_name": section_name,
-            "section_type": "unavailable",
-            "content": {
-                "raw_text": "N/A",
-                "metadata": {},
-                "key_values": {},
-                "tables": [],
-                "length": 0
-            },
-            "scraped_at": datetime.now().isoformat(),
-            "order": idx,
-            "status": "not_available"
-        })
-        logger.warning(f"Section unavailable: {section_name}")
-    
-    def _add_summary_stats(self, result: ScrapeResult) -> None:
-        """Add summary statistics to result"""
-        section_types = defaultdict(int)
-        for section in result.sections:
-            if "section_type" in section:
-                section_types[section["section_type"]] += 1
-        
-        result.summary = {
-            "total_sections": len(result.sections),
-            "successful_sections": sum(1 for s in result.sections if "error" not in s),
-            "failed_sections": sum(1 for s in result.sections if "error" in s),
-            "section_types": dict(section_types)
-        }
-        
-        logger.info(f"Summary: {result.summary['total_sections']} sections, types: {dict(section_types)}")
-    
-    def close(self) -> None:
-        """Close WebDriver"""
-        self.driver.quit()
+            pass
 
-
-# Orchestration
-@contextmanager
-def scraper_context(config: ScraperConfig = None):
-    """Context manager for scraper lifecycle"""
+# Batch Processing
+def scrape_hs_code_task(hs_code: str, config: ScraperConfig) -> Dict:
     scraper = ADILScraper(config)
     try:
-        yield scraper
+        result = scraper.scrape_hs_code(hs_code)
+        return asdict(result)
     finally:
         scraper.close()
 
-
-def scrape_single_code(hs_code: str, config: ScraperConfig = None) -> Dict[str, Any]:
-    """Scrape a single HS code"""
-    with scraper_context(config) as scraper:
-        result = scraper.scrape_hs_code(hs_code)
-        return asdict(result)
-
-
-def process_csv_batch(
-    csv_path: Path, 
-    config: ScraperConfig = None,
-    limit: Optional[int] = None,
-    skip_codes: Optional[Set[str]] = None
-) -> List[Dict[str, Any]]:
-    """Process multiple HS codes from CSV"""
-    hs_codes = read_hs_codes(csv_path, limit)
+def main():
+    # 1. Setup
+    csv_path = Path("codes.csv") # Expects column 'hs_code'
+    output_path = Path("adil_data.json")
     
-    if skip_codes:
-        original_count = len(hs_codes)
-        hs_codes = [c for c in hs_codes if c not in skip_codes]
-        skipped_count = original_count - len(hs_codes)
-        if skipped_count > 0:
-            logger.info(f"⏭️ Skipping {skipped_count} HS codes already in database.")
-
-    logger.info(f"Processing {len(hs_codes)} HS codes with {config.max_workers} workers")
+    config = ScraperConfig(headless=True, max_workers=2)
     
+    # 2. Read Codes
+    codes = []
+    if csv_path.exists():
+        with open(csv_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            codes = [row['hs_code'] for row in reader if row.get('hs_code')]
+    else:
+        logger.error("CSV file not found. Creating dummy list.")
+        codes = ["0101210000", "8517620000"] # Examples
+    
+    # 3. Run Pipeline
     results = []
-    
     with ThreadPoolExecutor(max_workers=config.max_workers) as executor:
-        future_to_code = {
-            executor.submit(scrape_single_code, code, config): code 
-            for code in hs_codes
-        }
+        future_map = {executor.submit(scrape_hs_code_task, code, config): code for code in codes}
         
-        for future in as_completed(future_to_code):
-            code = future_to_code[future]
-            try:
-                result = future.result()
-                results.append(result)
-                logger.info(f"Completed {code} ({len(results)}/{len(hs_codes)})")
-            except Exception as e:
-                logger.error(f"Failed {code}: {e}")
-    
-    return results
+        for future in as_completed(future_map):
+            code = future_map[future]
+            res = future.result()
+            results.append(res)
+            logger.info(f"Finished {code} - Found {len(res['sections'])} sections")
 
-
-# I/O Operations
-def read_hs_codes(csv_path: Path, limit: Optional[int] = None) -> List[str]:
-    """Read HS codes from CSV file"""
-    hs_codes = []
-    
-    with open(csv_path, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            hs_codes.append(row['hs_code'].strip())
-            if limit and len(hs_codes) >= limit:
-                break
-    
-    logger.info(f"Loaded {len(hs_codes)} HS codes from {csv_path}")
-    return hs_codes
-
-
-def save_results(
-    results: List[Dict[str, Any]], 
-    output_dir: Path = Path("."),
-    config: ScraperConfig = None
-) -> None:
-    """Save scraping results to JSON files"""
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Save detailed results
-    detailed_path = output_dir / "adil_detailed.json"
-    with open(detailed_path, 'w', encoding='utf-8') as f:
+    # 4. Save
+    with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(results, f, ensure_ascii=False, indent=2)
     
-    # Save summary
-    summary = build_summary(results, config)
-    summary_path = output_dir / "adil_summary.json"
-    with open(summary_path, 'w', encoding='utf-8') as f:
-        json.dump(summary, f, ensure_ascii=False, indent=2)
-    
-    logger.info(f"Results saved to {output_dir}")
-
-
-def build_summary(results: List[Dict[str, Any]], config: ScraperConfig) -> Dict[str, Any]:
-    """Build summary statistics"""
-    total_sections = sum(r.get("summary", {}).get("total_sections", 0) for r in results)
-    section_types = defaultdict(int)
-    
-    for result in results:
-        if "summary" in result and "section_types" in result["summary"]:
-            for stype, count in result["summary"]["section_types"].items():
-                section_types[stype] += count
-    
-    return {
-        "pipeline_metadata": {
-            "run_timestamp": datetime.now().isoformat(),
-            "total_codes_processed": len(results),
-            "max_workers": config.max_workers
-        },
-        "status_breakdown": {
-            "success": sum(1 for r in results if r.get("scrape_status") == "success"),
-            "partial": sum(1 for r in results if r.get("scrape_status") == "partial"),
-            "error": sum(1 for r in results if r.get("scrape_status") == "error")
-        },
-        "section_analytics": {
-            "total_sections_scraped": total_sections,
-            "avg_sections_per_code": round(total_sections / len(results), 2) if results else 0,
-            "section_type_distribution": dict(section_types)
-        }
-    }
-
-
-# Entry Point
-def main(csv_path: Optional[Path] = None, output_dir: Path = Path("."), skip_codes: Optional[Set[str]] = None, save_to_file: bool = True):
-    """Main execution function"""
-    # Enable DEBUG logging
-    logger.setLevel(logging.INFO)
-    
-    config = ScraperConfig(
-        max_retries=3,  # Restore retries
-        max_workers=3,
-        headless=True
-    )
-    
-    if csv_path is None:
-        csv_path = Path("../Code Sh Import - Feuil.csv")
-    
-    if not csv_path.exists():
-        logger.error(f"CSV file not found: {csv_path}")
-        return []
-    
-    results = process_csv_batch(csv_path, config, limit=15, skip_codes=skip_codes)
-    
-    if save_to_file:
-        save_results(results, output_dir, config)
-    
-    logger.info("Processing complete")
-    return results
-
+    logger.info(f"Done. Saved to {output_path}")
 
 if __name__ == "__main__":
     main()
