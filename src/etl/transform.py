@@ -270,49 +270,75 @@ def transform(raw: dict) -> dict:
         "lang": "fr"
     }
     
-    # === HIERARCHY LABEL EXTRACTION (Refined) ===
+    # === STATEFUL HIERARCHY PARSER ===
+    # Tracks the sequence of codes to accurately attribute labels
     hs4_label = "NA"
     hs6_label = "NA"
     hs8_label = "NA"
+    hs10_label = "NA"
 
     # Find where the actual table starts to avoid matching header text/codes
     table_start_marker = "Codification" if "Codification" in raw_text else "01.01"
     table_text = raw_text[raw_text.find(table_start_marker):] if table_start_marker in raw_text else raw_text
 
-    # Format codes for search: 0101 -> 01.01, 010129 -> 0101.29
+    # Define targets
     hs4_fmt = f"{hs4_code[:2]}.{hs4_code[2:]}"
     hs6_fmt = f"{hs6_code[:4]}.{hs6_code[4:]}"
     hs8_part = hs_code[6:8]
+    hs10_part = hs_code[8:10]
 
-    def extract_label_after_code(code_str, text):
-        pattern = rf"^{re.escape(code_str)}\s*\n\s*(?![\d\.])(.+?)(?:\n|$)"
-        match = re.search(pattern, text, re.MULTILINE)
-        if match:
-            return match.group(1).strip()
-        return "NA"
-
-    # Extract HS4 Label
-    hs4_label = extract_label_after_code(hs4_fmt, table_text)
+    # Process line by line (excluding the last line which is the Unit of Measure)
+    lines = [l.strip() for l in table_text.splitlines() if l.strip()]
+    unit_line = lines[-1] if lines else None
+    clean_lines = lines[:-1] if lines else []
     
-    # Extract HS6 Label
-    hs6_label = extract_label_after_code(hs6_fmt, table_text)
+    active_level = None
+    level_labels = {"HS4": [], "HS6": [], "HS8": [], "HS10": []}
 
-    # Extract HS8 Label (special handling because it might be just digits on a line)
-    # Search for HS6, then find the HS8 part after it
-    hs6_index = table_text.find(hs6_fmt)
-    if hs6_index != -1:
-        text_after_hs6 = table_text[hs6_index:]
-        hs8_pattern = rf"^{hs8_part}\s*\n\s*(?![\d\.])(.+?)(?:\n|$)"
-        m8 = re.search(hs8_pattern, text_after_hs6, re.MULTILINE)
-        if m8:
-            hs8_label = m8.group(1).strip()
-    
-    # Clean labels
-    hs4_label = clean_text_block(hs4_label)
-    hs6_label = clean_text_block(hs6_label)
-    hs8_label = clean_text_block(hs8_label)
+    for line in clean_lines:
+        # 1. Check for Level Transitions (Code Matches)
+        if line == hs4_fmt:
+            active_level = "HS4"
+            continue
+        elif line == hs6_fmt:
+            active_level = "HS6"
+            continue
+        elif active_level == "HS6" and line == hs8_part:
+            active_level = "HS8"
+            continue
+        elif active_level == "HS8" and line == hs10_part:
+            active_level = "HS10"
+            continue
+        
+        # 2. Accumulate Labels for the Active Level (if it's not a code)
+        if active_level and not re.match(r"^\d+[\d\.]*$", line):
+            level_labels[active_level].append(line)
 
-    print(f"DEBUG: Hierarchy Labels - HS4: '{hs4_label}', HS6: '{hs6_label}', HS8: '{hs8_label}'")
+    # 3. Finalize Labels
+    hs4_label = clean_text_block(" ".join(level_labels["HS4"])) or "NA"
+    hs6_label = clean_text_block(" ".join(level_labels["HS6"])) or "NA"
+    hs8_label = clean_text_block(" ".join(level_labels["HS8"])) or "NA"
+    # For HS10, if we found nothing in the sequence, fallback to the main designation
+    hs10_label = clean_text_block(" ".join(level_labels["HS10"])) or designation
+
+    # Ensure designation is synced with the most specific extracted label
+    designation = hs10_label if hs10_label != "NA" else designation
+
+    print(f"DEBUG: Stateful Labels - HS4: '{hs4_label}', HS6: '{hs6_label}', HS8: '{hs8_label}', HS10: '{hs10_label}'")
+
+    # Extract Unit of Measure: Use the last non-empty line of raw_text (e.g., 'U', 'KGS')
+    # Fallback to metadata if raw_text is missing or doesn't have a clear unit
+    unit_of_measure = "NA"
+    if raw_text:
+        lines = [line.strip() for line in raw_text.splitlines() if line.strip()]
+        if lines:
+            potential_unit = lines[-1]
+            # Units are typically short codes like 'U', 'KGS', 'M2', etc.
+            if len(potential_unit) <= 5: 
+                unit_of_measure = potential_unit
+            else:
+                # Fallback to metadata if last line looks like a label
+                unit_of_measure = pos_tarifaire.get("metadata", {}).get("unit", "U")
 
     # ============================================================================
     # 6. Build Final Product
@@ -339,8 +365,7 @@ def transform(raw: dict) -> dict:
                 "lang": "fr"
             }
         },
-        "unit_of_measure": pos_tarifaire.get("metadata", {}).get("unit", "U"),
-        "entry_into_force_date": None,
+        "unit_of_measure": unit_of_measure,
         "taxation": {"taxes": taxes, "meta": taxation_meta},
         "documents": {"documents": documents, "meta": documents_meta},
         "accord_convention": {"accord_convention": agreements, "meta": agreements_meta},

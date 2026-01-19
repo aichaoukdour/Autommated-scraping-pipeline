@@ -112,7 +112,6 @@ def load_product(product: dict, conn):
                     hs8_label,
                     designation,
                     unit_of_measure,
-                    entry_into_force_date,
                     taxation,
                     documents,
                     agreements,
@@ -121,7 +120,7 @@ def load_product(product: dict, conn):
                     raw,
                     updated_at
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, now())
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, now())
                 ON CONFLICT (hs10)
                 DO UPDATE SET
                     section_label = EXCLUDED.section_label,
@@ -131,7 +130,6 @@ def load_product(product: dict, conn):
                     hs8_label = EXCLUDED.hs8_label,
                     designation = EXCLUDED.designation,
                     unit_of_measure = EXCLUDED.unit_of_measure,
-                    entry_into_force_date = EXCLUDED.entry_into_force_date,
                     taxation = EXCLUDED.taxation,
                     documents = EXCLUDED.documents,
                     agreements = EXCLUDED.agreements,
@@ -149,7 +147,6 @@ def load_product(product: dict, conn):
                 product.get("hs8_label"),
                 product["designation"],
                 product["unit_of_measure"],
-                product["entry_into_force_date"],
                 Json(product["taxation"]),
                 Json(product["documents"]),
                 Json(product["accord_convention"]),
