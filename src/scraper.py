@@ -505,4 +505,4 @@ def main(
     logger.info("Batch scraping sequence completed.")
 
 if __name__ == "__main__":
-    main(limit=2)
+    main(limit=None)
