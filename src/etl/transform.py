@@ -360,6 +360,7 @@ def transform(raw: dict) -> dict:
             "chapter_label": clean_text_block(chapter_label),
             "hs4": {"code": hs4_code, "label": hs4_label, "present": True},
             "hs6": {"code": hs6_code, "label": hs6_label, "present": True},
+            "hs8": {"code": hs8_code, "label": hs8_label, "present": hs8_label != "NA"},
             "meta": {
                 "source": "ADII",
                 "scraped_at": scraped_at,
