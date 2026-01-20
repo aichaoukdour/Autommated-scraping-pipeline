@@ -227,17 +227,43 @@ def transform(raw: dict) -> dict:
     agg_raw = agg_content.get("raw_text", "")
     agreements = []
     
-    # Regex to capture: Name + Rate1 + Rate2
-    for line in agg_raw.splitlines():
-        # Match patterns like: "UE AGRI : LISTE 1 GROUPE 1 0 (*)"
-        match = re.search(r"^(.*?)\s+([\d,\.]+%?|\(\*\)|0)\s+([\d,\.]+%?|\(\*\)|0)\s*$", line.strip())
-        if match:
+    # Parse agreements: data is structured as lines in groups of 4:
+    # COUNTRY_NAME
+    # LIST_TYPE (e.g., FRANCHISE, AGRI : LISTE 1 GROUPE 1)
+    # DI_RATE (e.g., 0, 2.5)
+    # TPI_RATE (e.g., 0, (*))
+    agg_lines = [l.strip() for l in agg_raw.splitlines() if l.strip()]
+    
+    # Find where the data starts (after the header row containing "TPI")
+    start_idx = -1
+    for i, line in enumerate(agg_lines):
+        if line == "TPI":
+            # The next line is usually "( en % )"
+            if i + 1 < len(agg_lines) and "%" in agg_lines[i+1]:
+                start_idx = i + 2
+                break
+    
+    if start_idx != -1:
+        # Process lines in groups of 4
+        for i in range(start_idx, len(agg_lines) - 3, 4):
+            country = agg_lines[i]
+            list_type = agg_lines[i + 1]
+            di_rate = agg_lines[i + 2]
+            tpi_rate = agg_lines[i + 3]
+            
+            # Skip footnotes or end of section
+            if country.startswith("(") or "Taux" in country or "Source" in country:
+                continue
+                
             agreements.append({
-                "country": match.group(1).strip(),
-                "DI": match.group(2),
-                "TPI": match.group(3),
-                "raw": line.strip()
+                "country": country,
+                "list": list_type,
+                "DI": di_rate,
+                "TPI": tpi_rate,
+                "raw": f"{country} {list_type} DI:{di_rate} TPI:{tpi_rate}"
             })
+    
+    print(f"DEBUG: Extracted {len(agreements)} agreements from 'Accords et Convention' section")
     
     agreements_meta = {
         "source": "ADII",

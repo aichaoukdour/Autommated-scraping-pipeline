@@ -13,18 +13,23 @@ import init_db
 from etl import main as etl_main
 from etl import resume_utils
 
-def run_pipeline(limit=None):
-    print(f"🚀 Starting Master Pipeline (Limit: {limit})...")
+import argparse
+
+def run_pipeline(limit=None, force_etl=False):
+    print(f"🚀 Starting Master Pipeline (Limit: {limit}, Force ETL: {force_etl})...")
     
     # Define paths relative to this script (project root)
     root_dir = Path(__file__).parent
     csv_input = root_dir / "Code Sh Import - Feuil.csv"
-    scraper_output_dir = root_dir / "src"
-    detailed_json = scraper_output_dir / "adil_detailed.json"
     
     # 0. Check for existing codes (Resume Capability)
     print("\n--- Phase 0: Checking for existing data ---")
-    existing_codes = resume_utils.get_existing_hs_codes(etl_main.DSN)
+    if force_etl:
+        print("🔄 Force ETL enabled: Re-processing all codes.")
+        existing_codes = set()
+    else:
+        existing_codes = resume_utils.get_existing_hs_codes(etl_main.DSN)
+        print(f"⏭️ Skipping {len(existing_codes)} already processed codes.")
     
     # 1. Database Initialization
     print("\n--- Phase 1: Database Initialization ---")
@@ -53,4 +58,9 @@ def run_pipeline(limit=None):
     print("\n✅ Master Pipeline completed successfully!")
 
 if __name__ == "__main__":
-    run_pipeline()
+    parser = argparse.ArgumentParser(description="Master Pipeline for Scraping and ETL")
+    parser.add_argument("--limit", type=int, help="Limit the number of HS codes to process")
+    parser.add_argument("--force-etl", action="store_true", help="Re-process codes even if they exist in the database")
+    args = parser.parse_args()
+    
+    run_pipeline(limit=args.limit, force_etl=args.force_etl)
