@@ -358,8 +358,8 @@ def transform(raw: dict) -> dict:
             "section_label": clean_text_block(section_label),
             "chapter_code": chapter_code,
             "chapter_label": clean_text_block(chapter_label),
-            "hs4": {"code": hs4_code, "label": hs4_label, "present": True},
-            "hs6": {"code": hs6_code, "label": hs6_label, "present": True},
+            "hs4": {"code": hs4_code, "label": hs4_label, "present": hs4_label != "NA"},
+            "hs6": {"code": hs6_code, "label": hs6_label, "present": hs6_label != "NA"},
             "hs8": {"code": hs8_code, "label": hs8_label, "present": hs8_label != "NA"},
             "meta": {
                 "source": "ADII",
