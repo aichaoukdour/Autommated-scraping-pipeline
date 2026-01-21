@@ -1,4 +1,2 @@
 ﻿id;section_id;chapter_code;label;meta;updated_at
-1;1;01;Animaux vivants;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T13:54:03.250568"", ""parser_version"": ""v1.3""}";2026-01-20 12:54:41.931487
-2;1;02;Viandes et abats comestibles;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:05:32.355786"", ""parser_version"": ""v1.3""}";2026-01-20 15:06:05.397463
-3;1;03;Poissons et crustacés, mollusques et autres invertébrés aquatiques;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T17:16:43.894436"", ""parser_version"": ""v1.3""}";2026-01-20 16:17:55.200359
+1;1;01;Animaux vivants;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-21T19:01:37.216975"", ""parser_version"": ""v1.3""}";2026-01-21 18:02:13.221640

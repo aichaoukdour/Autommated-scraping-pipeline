@@ -2,7 +2,7 @@
 
 import re
 from datetime import datetime
-from cleaners import clean_text_block, parse_french_date, parse_percentage
+from cleaners import clean_text_block, parse_french_date, parse_percentage, remove_adil_boilerplate
 from schemas import HSProduct
 
 def transform(raw: dict) -> dict:
@@ -59,12 +59,12 @@ def transform(raw: dict) -> dict:
         match = re.match(r"^(\d{2})\s*[\-–—]\s*(.+)$", section_raw.strip(), re.DOTALL)
         if match:
             section_code = match.group(1)
-            section_label = match.group(2).strip()
+            section_label = remove_adil_boilerplate(match.group(2).strip())
         else:
             parts = section_raw.split("-", 1)
             if len(parts) == 2:
                 section_code = parts[0].strip()
-                section_label = parts[1].strip()
+                section_label = remove_adil_boilerplate(parts[1].strip())
 
     print(f"DEBUG: Section extracted - code='{section_code}', label='{section_label[:50]}...'")
     
@@ -85,12 +85,12 @@ def transform(raw: dict) -> dict:
         match = re.match(r"^(\d{2})\s*[\-–—]\s*(.+)$", chapter_raw.strip(), re.DOTALL)
         if match:
             chapter_code = match.group(1)
-            chapter_label = match.group(2).strip()
+            chapter_label = remove_adil_boilerplate(match.group(2).strip())
         else:
             parts = chapter_raw.split("-", 1)
             if len(parts) == 2:
                 chapter_code = parts[0].strip()
-                chapter_label = parts[1].strip()
+                chapter_label = remove_adil_boilerplate(parts[1].strip())
     
     print(f"DEBUG: Chapter extracted - code='{chapter_code}', label='{chapter_label[:50]}...'")
     sys.stdout.flush()
@@ -132,7 +132,7 @@ def transform(raw: dict) -> dict:
         # Remove common artifacts
         designation = re.sub(r'â€"', '-', designation)  # Fix encoding
         designation = re.sub(r'\s+', ' ', designation)  # Normalize whitespace
-        designation = designation.strip()
+        designation = remove_adil_boilerplate(designation)
     
     scraped_at = raw.get("scraped_at") or datetime.utcnow().isoformat() + "Z"
     parser_version = "v1.3"  # Incremented version
@@ -155,7 +155,7 @@ def transform(raw: dict) -> dict:
         for label, code, value in tax_matches:
             taxes.append({
                 "code": code.strip(),
-                "label": clean_text_block(label.strip().replace("*", "")),
+                "label": remove_adil_boilerplate(label.strip().replace("*", "")),
                 "raw": value.strip()
             })
             
@@ -172,7 +172,7 @@ def transform(raw: dict) -> dict:
             
             taxes.append({
                 "code": code,
-                "label": clean_text_block(label),
+                "label": remove_adil_boilerplate(label),
                 "raw": v
             })
     
@@ -206,8 +206,8 @@ def transform(raw: dict) -> dict:
                 if i + 2 < len(doc_lines):
                     documents.append({
                         "code": doc_lines[i],
-                        "name": clean_text_block(doc_lines[i+1]),
-                        "issuer": clean_text_block(doc_lines[i+2]),
+                        "name": remove_adil_boilerplate(doc_lines[i+1]),
+                        "issuer": remove_adil_boilerplate(doc_lines[i+2]),
                         "raw": f"{doc_lines[i]} {doc_lines[i+1]}"
                     })
     except Exception as e:
@@ -343,11 +343,11 @@ def transform(raw: dict) -> dict:
             level_labels[active_level].append(line)
 
     # 3. Finalize Labels
-    hs4_label = clean_text_block(" ".join(level_labels["HS4"])) or "NA"
-    hs6_label = clean_text_block(" ".join(level_labels["HS6"])) or "NA"
-    hs8_label = clean_text_block(" ".join(level_labels["HS8"])) or "NA"
+    hs4_label = remove_adil_boilerplate(" ".join(level_labels["HS4"])) or "NA"
+    hs6_label = remove_adil_boilerplate(" ".join(level_labels["HS6"])) or "NA"
+    hs8_label = remove_adil_boilerplate(" ".join(level_labels["HS8"])) or "NA"
     # For HS10, if we found nothing in the sequence, fallback to the main designation
-    hs10_label = clean_text_block(" ".join(level_labels["HS10"])) or designation
+    hs10_label = remove_adil_boilerplate(" ".join(level_labels["HS10"])) or designation
 
     # Ensure designation is synced with the most specific extracted label
     designation = hs10_label if hs10_label != "NA" else designation
@@ -373,17 +373,17 @@ def transform(raw: dict) -> dict:
     # ============================================================================
     product = {
         "hs_code": hs_code,
-        "section_label": clean_text_block(section_label),
-        "chapter_label": clean_text_block(chapter_label),
+        "section_label": remove_adil_boilerplate(section_label),
+        "chapter_label": remove_adil_boilerplate(chapter_label),
         "hs4_label": hs4_label,
         "hs6_label": hs6_label,
         "hs8_label": hs8_label,
-        "designation": clean_text_block(designation),
+        "designation": remove_adil_boilerplate(designation),
         "hierarchy": {
             "section_code": section_code,
-            "section_label": clean_text_block(section_label),
+            "section_label": remove_adil_boilerplate(section_label),
             "chapter_code": chapter_code,
-            "chapter_label": clean_text_block(chapter_label),
+            "chapter_label": remove_adil_boilerplate(chapter_label),
             "hs4": {"code": hs4_code, "label": hs4_label, "present": hs4_label != "NA"},
             "hs6": {"code": hs6_code, "label": hs6_label, "present": hs6_label != "NA"},
             "hs8": {"code": hs8_code, "label": hs8_label, "present": hs8_label != "NA"},
