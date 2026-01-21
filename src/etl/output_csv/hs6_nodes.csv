@@ -1,3 +1,115 @@
 ﻿id;hs4_id;hs6;label;present;meta;updated_at
-1;1;010121;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-19T17:49:49.665703"", ""parser_version"": ""v1.3""}";2026-01-19 18:40:12.370994
-2;1;010129;- - Autres;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-19T17:50:13.702076"", ""parser_version"": ""v1.3""}";2026-01-19 18:40:12.409153
+16;5;010512;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T15:53:29.780027"", ""parser_version"": ""v1.3""}";2026-01-20 14:54:05.174311
+1;1;010121;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T13:54:03.250568"", ""parser_version"": ""v1.3""}";2026-01-20 12:54:41.931487
+3;1;010130;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T13:54:44.738329"", ""parser_version"": ""v1.3""}";2026-01-20 12:55:17.021559
+17;5;010513;- - Canards;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T15:54:07.145216"", ""parser_version"": ""v1.3""}";2026-01-20 14:54:40.688864
+18;5;010514;- - Oies;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T15:54:08.640555"", ""parser_version"": ""v1.3""}";2026-01-20 14:54:46.348558
+19;5;010515;- - pintades;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T15:54:45.527391"", ""parser_version"": ""v1.3""}";2026-01-20 14:55:18.739438
+6;2;010229;- - Autres;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T14:59:10.095682"", ""parser_version"": ""v1.3""}";2026-01-20 13:59:45.068517
+7;2;010231;;False;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T15:01:06.229653"", ""parser_version"": ""v1.3""}";2026-01-20 14:01:40.169613
+8;2;010239;;False;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T15:01:27.986832"", ""parser_version"": ""v1.3""}";2026-01-20 14:02:02.513817
+9;2;010290;- - - - - Autres£- - - des espèces domestiques :;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T15:01:48.015865"", ""parser_version"": ""v1.3""}";2026-01-20 14:02:27.502706
+10;3;010310;;False;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T15:02:23.342144"", ""parser_version"": ""v1.3""}";2026-01-20 14:02:57.329778
+11;3;010391;- - D'un poids inférieur à 50 kg;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T15:02:45.205394"", ""parser_version"": ""v1.3""}";2026-01-20 14:03:19.483070
+12;3;010392;- - D'un poids égal ou supérieur à 50 kg;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T15:03:09.071491"", ""parser_version"": ""v1.3""}";2026-01-20 14:03:43.264969
+21;5;010594;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T15:55:21.239220"", ""parser_version"": ""v1.3""}";2026-01-20 14:55:58.136078
+32;6;010641;- - Abeilles;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:03:31.384754"", ""parser_version"": ""v1.3""}";2026-01-20 15:04:08.262227
+13;4;010410;- De l'espèce ovine;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T15:03:41.318606"", ""parser_version"": ""v1.3""}";2026-01-20 14:04:15.357223
+20;5;010599;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T15:55:22.194739"", ""parser_version"": ""v1.3""}";2026-01-20 14:55:55.770821
+14;4;010420;- De l'espèce caprine;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T15:52:17.011986"", ""parser_version"": ""v1.3""}";2026-01-20 14:52:49.662600
+15;5;010511;- - Coqs et poules;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T15:52:52.878690"", ""parser_version"": ""v1.3""}";2026-01-20 14:53:26.844397
+22;6;010611;- - Primates;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T15:56:03.815701"", ""parser_version"": ""v1.3""}";2026-01-20 14:56:41.200108
+23;6;010612;"- - Baleines, dauphins et marsouins (mammifères de l'ordre des cétacés) ; lamantins et dugongs (mammifères de l'ordre des siréniens)";True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T15:56:42.674250"", ""parser_version"": ""v1.3""}";2026-01-20 14:57:17.680807
+25;6;010614;- - Lapins et lièvres%– – – lapins domestiques :;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T15:57:53.404788"", ""parser_version"": ""v1.3""}";2026-01-20 14:58:27.218396
+24;6;010613;- - Chameaux et autres camélidés (Camelidés);True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T15:57:17.272779"", ""parser_version"": ""v1.3""}";2026-01-20 14:57:50.771034
+27;6;010620;- Reptiles (y compris les serpents et les tortues de mer);True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:00:25.214466"", ""parser_version"": ""v1.3""}";2026-01-20 15:00:57.752030
+28;6;010631;- - Oiseaux de proie;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:01:00.758177"", ""parser_version"": ""v1.3""}";2026-01-20 15:01:38.098584
+29;6;010632;- - Psittaciformes (y compris les perroquets, perruches, aras et cacatoès);True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:01:31.869329"", ""parser_version"": ""v1.3""}";2026-01-20 15:02:06.448227
+30;6;010633;"- - ""Autruches; émeus (Dromaius novaehollandiae)""";True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:01:44.590391"", ""parser_version"": ""v1.3""}";2026-01-20 15:02:23.802426
+26;6;010619;- - - - - Autres£- - - lapins domestiques :;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T15:59:05.436859"", ""parser_version"": ""v1.3""}";2026-01-20 14:59:37.813466
+33;6;010649;- - Autres;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:04:12.584967"", ""parser_version"": ""v1.3""}";2026-01-20 15:04:46.128255
+31;6;010639;- - Autres£- - - pigeons :;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:02:17.614809"", ""parser_version"": ""v1.3""}";2026-01-20 15:02:52.030281
+35;7;020110;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:05:32.355786"", ""parser_version"": ""v1.3""}";2026-01-20 15:06:05.397463
+34;6;010690;- - - - Autres;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:04:30.942562"", ""parser_version"": ""v1.3""}";2026-01-20 15:05:06.061810
+36;7;020120;- Autres morceaux non désossés£- - - de l'espèce domestique :;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:06:09.401101"", ""parser_version"": ""v1.3""}";2026-01-20 15:06:43.310296
+37;7;020130;Désossées£- - - de l'espèce domestique :;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:07:22.373838"", ""parser_version"": ""v1.3""}";2026-01-20 15:07:55.383633
+38;8;020210;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:08:39.543282"", ""parser_version"": ""v1.3""}";2026-01-20 15:09:12.068458
+39;8;020220;- Autres morceaux non désossés;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:08:57.457383"", ""parser_version"": ""v1.3""}";2026-01-20 15:09:30.490602
+2;1;010129;- - Autres;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T13:54:03.174160"", ""parser_version"": ""v1.3""}";2026-01-20 12:54:42.233035
+4;2;010221;;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T14:58:23.180307"", ""parser_version"": ""v1.3""}";2026-01-20 13:59:10.601514
+5;1;010190;- - - - - Autres£- - - chevaux :;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T14:58:42.177609"", ""parser_version"": ""v1.3""}";2026-01-20 13:59:17.816967
+61;12;020630;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:24:13.846298"", ""parser_version"": ""v1.3""}";2026-01-20 15:24:56.937701
+40;8;020230;- Désossées£- - - de l'espèce domestique :;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:09:51.191724"", ""parser_version"": ""v1.3""}";2026-01-20 15:10:24.058752
+41;9;020311;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:10:28.229819"", ""parser_version"": ""v1.3""}";2026-01-20 15:11:01.838177
+42;9;020312;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:11:04.740023"", ""parser_version"": ""v1.3""}";2026-01-20 15:11:38.005637
+51;10;020430;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:16:36.761406"", ""parser_version"": ""v1.3""}";2026-01-20 15:17:32.290576
+43;9;020319;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:11:23.828403"", ""parser_version"": ""v1.3""}";2026-01-20 15:11:56.621265
+44;9;020321;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:11:42.170890"", ""parser_version"": ""v1.3""}";2026-01-20 15:12:16.175092
+52;10;020441;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:17:30.763254"", ""parser_version"": ""v1.3""}";2026-01-20 15:18:15.117739
+45;9;020322;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:12:22.269195"", ""parser_version"": ""v1.3""}";2026-01-20 15:13:06.382991
+71;13;020726;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:37:11.225870"", ""parser_version"": ""v1.3""}";2026-01-20 15:38:07.082140
+53;10;020442;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:18:13.794893"", ""parser_version"": ""v1.3""}";2026-01-20 15:18:50.872069
+46;9;020329;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:12:54.023891"", ""parser_version"": ""v1.3""}";2026-01-20 15:13:31.658635
+58;12;020621;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:21:21.592451"", ""parser_version"": ""v1.3""}";2026-01-20 15:21:56.705086
+47;10;020410;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:13:21.907279"", ""parser_version"": ""v1.3""}";2026-01-20 15:14:27.814701
+48;10;020421;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:14:16.010411"", ""parser_version"": ""v1.3""}";2026-01-20 15:15:16.586888
+55;10;020450;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:19:03.861069"", ""parser_version"": ""v1.3""}";2026-01-20 15:19:48.102893
+54;10;020443;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:18:28.764000"", ""parser_version"": ""v1.3""}";2026-01-20 15:19:03.060994
+49;10;020422;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:15:17.853053"", ""parser_version"": ""v1.3""}";2026-01-20 15:16:00.177838
+50;10;020423;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:16:02.030900"", ""parser_version"": ""v1.3""}";2026-01-20 15:16:45.587336
+56;11;020500;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:19:21.438475"", ""parser_version"": ""v1.3""}";2026-01-20 15:20:10.923096
+67;13;020712;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:31:03.796921"", ""parser_version"": ""v1.3""}";2026-01-20 15:31:55.507109
+62;12;020641;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:25:12.769517"", ""parser_version"": ""v1.3""}";2026-01-20 15:25:51.091567
+59;12;020622;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:22:11.608735"", ""parser_version"": ""v1.3""}";2026-01-20 15:22:59.978851
+64;12;020680;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:27:12.068812"", ""parser_version"": ""v1.3""}";2026-01-20 15:28:13.362689
+57;12;020610;- De l'espèce bovine, frais ou réfrigérés;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:19:56.450956"", ""parser_version"": ""v1.3""}";2026-01-20 15:21:08.117737
+60;12;020629;- - Autres;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:23:07.300951"", ""parser_version"": ""v1.3""}";2026-01-20 15:23:43.213533
+65;12;020690;- Autres, congelés;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:28:18.228812"", ""parser_version"": ""v1.3""}";2026-01-20 15:28:53.846267
+63;12;020649;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:26:12.473948"", ""parser_version"": ""v1.3""}";2026-01-20 15:26:55.516404
+72;13;020725;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:37:24.884173"", ""parser_version"": ""v1.3""}";2026-01-20 15:38:09.054976
+66;13;020711;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:30:59.271960"", ""parser_version"": ""v1.3""}";2026-01-20 15:31:49.136605
+69;13;020714;- - Morceaux et abats, congelés;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:32:39.781302"", ""parser_version"": ""v1.3""}";2026-01-20 15:33:24.277114
+70;13;020724;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:35:39.306695"", ""parser_version"": ""v1.3""}";2026-01-20 15:37:46.113580
+68;13;020713;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:31:22.243351"", ""parser_version"": ""v1.3""}";2026-01-20 15:32:06.894362
+73;13;020727;- - Morceaux et abats, congelés;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:38:58.222171"", ""parser_version"": ""v1.3""}";2026-01-20 15:39:47.603014
+77;13;020744;- - Autres, frais ou réfrigérés;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:42:19.556216"", ""parser_version"": ""v1.3""}";2026-01-20 15:42:57.334505
+74;13;020742;- - Non découpés en morceaux, congelés;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:41:07.234856"", ""parser_version"": ""v1.3""}";2026-01-20 15:42:08.743027
+78;13;020745;- - Autres, congelés;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:42:15.516015"", ""parser_version"": ""v1.3""}";2026-01-20 15:43:12.350689
+75;13;020741;- - Non découpés en morceaux, frais ou réfrigérés;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:41:03.939287"", ""parser_version"": ""v1.3""}";2026-01-20 15:42:08.857323
+76;13;020743;- - Foies gras, frais ou réfrigérés;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:41:57.614587"", ""parser_version"": ""v1.3""}";2026-01-20 15:42:45.250940
+83;13;020755;- - Autres, congelés;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:45:11.366330"", ""parser_version"": ""v1.3""}";2026-01-20 15:46:06.132468
+79;13;020751;- - Non découpés en morceaux, frais ou réfrigérés;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:43:10.038494"", ""parser_version"": ""v1.3""}";2026-01-20 15:43:50.725756
+80;13;020752;- - Non découpés en morceaux, congelés;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:43:18.023709"", ""parser_version"": ""v1.3""}";2026-01-20 15:44:21.078361
+82;13;020754;- - Autres, frais ou réfrigérés;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:45:04.108605"", ""parser_version"": ""v1.3""}";2026-01-20 15:46:00.896744
+84;13;020760;- De pintades;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:46:20.462510"", ""parser_version"": ""v1.3""}";2026-01-20 15:47:26.724496
+81;13;020753;- - Foies gras, frais ou réfrigérés;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:43:43.523029"", ""parser_version"": ""v1.3""}";2026-01-20 15:45:16.895782
+100;16;021099;- - - - - Autres;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T17:11:45.458742"", ""parser_version"": ""v1.3""}";2026-01-20 16:12:44.411699
+112;18;030219;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T17:29:49.982445"", ""parser_version"": ""v1.3""}";2026-01-20 16:31:08.067310
+85;14;020810;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:53:11.933767"", ""parser_version"": ""v1.3""}";2026-01-20 15:53:56.792138
+91;15;020910;- De porc;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T17:05:21.174422"", ""parser_version"": ""v1.3""}";2026-01-20 16:06:04.180885
+98;16;021092;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T17:08:28.948173"", ""parser_version"": ""v1.3""}";2026-01-20 16:10:44.528138
+87;14;020840;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:55:43.830962"", ""parser_version"": ""v1.3""}";2026-01-20 15:56:26.524577
+107;17;030195;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T17:22:03.835872"", ""parser_version"": ""v1.3""}";2026-01-20 16:22:51.151837
+102;17;030111;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T17:16:55.773863"", ""parser_version"": ""v1.3""}";2026-01-20 16:18:09.445718
+96;16;021020;- Viandes de l'espèce bovine£- - - de l'espèce bovine domestique :;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T17:07:04.388146"", ""parser_version"": ""v1.3""}";2026-01-20 16:07:46.374527
+88;14;020850;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:59:15.196135"", ""parser_version"": ""v1.3""}";2026-01-20 15:59:55.116915
+93;16;021011;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T17:06:10.728176"", ""parser_version"": ""v1.3""}";2026-01-20 16:06:51.575837
+92;15;020990;- Autres;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T17:05:22.311645"", ""parser_version"": ""v1.3""}";2026-01-20 16:06:04.781844
+105;17;030193;- - Carpes - - Carpes (Cyprinus spp., Carassius spp., Ctenopharyngodonidellus, Hypophthalmichthys spp., Cirrhinus spp., Mylopharyngodon piceus, Catla catla, Labeo spp., Osteochilus hasselti, Leptobarbus hoeveni, Megalobrama spp.);True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T17:19:27.159520"", ""parser_version"": ""v1.3""}";2026-01-20 16:21:59.182297
+86;14;020830;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T16:54:10.103222"", ""parser_version"": ""v1.3""}";2026-01-20 15:56:14.841865
+94;16;021012;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T17:06:11.207376"", ""parser_version"": ""v1.3""}";2026-01-20 16:06:51.675083
+97;16;021091;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T17:08:18.212936"", ""parser_version"": ""v1.3""}";2026-01-20 16:09:14.232642
+99;16;021093;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T17:11:39.802401"", ""parser_version"": ""v1.3""}";2026-01-20 16:12:28.771362
+90;14;020890;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T17:02:20.002798"", ""parser_version"": ""v1.3""}";2026-01-20 16:03:02.329573
+109;18;030214;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T17:28:17.389692"", ""parser_version"": ""v1.3""}";2026-01-20 16:29:09.954790
+89;14;020860;- De chameaux et d'autres camélidés (Camelidés);True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T17:01:38.500307"", ""parser_version"": ""v1.3""}";2026-01-20 16:02:20.056515
+101;17;030119;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T17:16:43.894436"", ""parser_version"": ""v1.3""}";2026-01-20 16:17:55.200359
+95;16;021019;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T17:06:40.138668"", ""parser_version"": ""v1.3""}";2026-01-20 16:07:25.363951
+113;18;030221;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T17:29:45.008532"", ""parser_version"": ""v1.3""}";2026-01-20 16:31:12.792863
+103;17;030191;- - - - - - Truites (Salmo trutta, Oncorhynchus mykiss, Oncorhynchus clarki, Oncorhynchus aguabonita, Oncorhynchus gilae, Oncorhynchus apache et Oncorhynchus chrysogaster);True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T17:16:51.978847"", ""parser_version"": ""v1.3""}";2026-01-20 16:18:18.811197
+104;17;030192;- - Anguilles (Anguilla spp);True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T17:18:30.020825"", ""parser_version"": ""v1.3""}";2026-01-20 16:19:17.206881
+106;17;030194;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T17:21:45.271813"", ""parser_version"": ""v1.3""}";2026-01-20 16:22:25.929200
+110;18;030211;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T17:28:18.599522"", ""parser_version"": ""v1.3""}";2026-01-20 16:29:16.077701
+108;17;030199;- - Autres£- - - d'eau douce :;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T17:22:31.314588"", ""parser_version"": ""v1.3""}";2026-01-20 16:23:18.881080
+111;18;030213;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T17:28:17.324494"", ""parser_version"": ""v1.3""}";2026-01-20 16:29:19.875587
+114;18;030222;NA;True;"{""lang"": ""fr"", ""source"": ""ADII"", ""scraped_at"": ""2026-01-20T17:29:57.816927"", ""parser_version"": ""v1.3""}";2026-01-20 16:31:21.878740

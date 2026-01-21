@@ -68,48 +68,54 @@ def load_product(product: dict, conn):
             row = cur.fetchone()
             if row:
                 hs4_id = row[0]
+                # Update presence if needed
+                cur.execute("UPDATE hs4_nodes SET present = %s WHERE id = %s", (hs4.get("label") is not None, hs4_id))
             else:
                 cur.execute("""
                     INSERT INTO hs4_nodes (chapter_id, hs4, label, present, meta)
-                    VALUES (%s, %s, %s, true, %s)
+                    VALUES (%s, %s, %s, %s, %s)
                     RETURNING id
                 """, (
                     chapter_id,
                     hs4["code"],
-                    hs4.get("label", "NA"),
+                    hs4.get("label"),
+                    hs4.get("label") is not None,
                     Json(section.get("meta", {"source": "ADII"}))
                 ))
                 hs4_id = cur.fetchone()[0]
-
+ 
             # 3.4 HS6 - Find or create
             hs6 = section["hs6"]
             cur.execute("SELECT id FROM hs6_nodes WHERE hs4_id = %s AND hs6 = %s LIMIT 1", (hs4_id, hs6["code"]))
             row = cur.fetchone()
             if row:
                 hs6_id = row[0]
+                # Update presence if needed
+                cur.execute("UPDATE hs6_nodes SET present = %s WHERE id = %s", (hs6.get("label") is not None, hs6_id))
             else:
                 cur.execute("""
                     INSERT INTO hs6_nodes (hs4_id, hs6, label, present, meta)
-                    VALUES (%s, %s, %s, true, %s)
+                    VALUES (%s, %s, %s, %s, %s)
                     RETURNING id
                 """, (
                     hs4_id,
                     hs6["code"],
-                    hs6.get("label", "NA"),
+                    hs6.get("label"),
+                    hs6.get("label") is not None,
                     Json(section.get("meta", {"source": "ADII"}))
                 ))
                 hs6_id = cur.fetchone()[0]
-
+ 
             # 3.5 HS PRODUCT (CORE)
             cur.execute("""
                 INSERT INTO hs_products (
                     hs10,
                     hs6_id,
+                    hs8_label,
                     section_label,
                     chapter_label,
                     hs4_label,
                     hs6_label,
-                    hs8_label,
                     designation,
                     unit_of_measure,
                     taxation,
@@ -123,11 +129,11 @@ def load_product(product: dict, conn):
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, now())
                 ON CONFLICT (hs10)
                 DO UPDATE SET
+                    hs8_label = EXCLUDED.hs8_label,
                     section_label = EXCLUDED.section_label,
                     chapter_label = EXCLUDED.chapter_label,
                     hs4_label = EXCLUDED.hs4_label,
                     hs6_label = EXCLUDED.hs6_label,
-                    hs8_label = EXCLUDED.hs8_label,
                     designation = EXCLUDED.designation,
                     unit_of_measure = EXCLUDED.unit_of_measure,
                     taxation = EXCLUDED.taxation,
@@ -140,11 +146,11 @@ def load_product(product: dict, conn):
             """, (
                 product["hs_code"],
                 hs6_id,
+                product.get("hs8_label"),
                 product.get("section_label"),
                 product.get("chapter_label"),
                 product.get("hs4_label"),
                 product.get("hs6_label"),
-                product.get("hs8_label"),
                 product["designation"],
                 product["unit_of_measure"],
                 Json(product["taxation"]),

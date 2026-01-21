@@ -97,10 +97,11 @@ CREATE TABLE IF NOT EXISTS hs_products (
   hs10 TEXT PRIMARY KEY CHECK (hs10 ~ '^[0-9]{10}$'),
   hs6_id BIGINT NOT NULL REFERENCES hs6_nodes(id) ON DELETE RESTRICT,
 
-  -- HS8 dérivé automatiquement
+  -- HS codes dérivés automatiquement
+  hs4 TEXT GENERATED ALWAYS AS (substring(hs10 from 1 for 4)) STORED,
+  hs6 TEXT GENERATED ALWAYS AS (substring(hs10 from 1 for 6)) STORED,
   hs8 TEXT GENERATED ALWAYS AS (substring(hs10 from 1 for 8)) STORED,
   hs8_label TEXT,
-  hs8_present BOOLEAN NOT NULL DEFAULT TRUE,
 
   -- hierarchy labels
   section_label TEXT,

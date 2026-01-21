@@ -9,7 +9,7 @@ DSN = "dbname=hs user=postgres password=postgres host=localhost port=5433"
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_DIR = os.path.join(SCRIPT_DIR, "output_csv")
 
-def export_table_to_csv(table_name, conn):
+def export_table_to_csv(table_name, conn, filename=None):
     with conn.cursor(cursor_factory=DictCursor) as cur:
         cur.execute(f"SELECT * FROM {table_name}")
         rows = cur.fetchall()
@@ -19,7 +19,8 @@ def export_table_to_csv(table_name, conn):
             return
 
         os.makedirs(OUTPUT_DIR, exist_ok=True)
-        filename = os.path.join(OUTPUT_DIR, f"{table_name}.csv")
+        if filename is None:
+            filename = os.path.join(OUTPUT_DIR, f"{table_name}.csv")
 
         colnames = [desc[0] for desc in cur.description]
 
@@ -45,9 +46,11 @@ def export_table_to_csv(table_name, conn):
 def main():
     try:
         conn = psycopg2.connect(DSN)
-        tables = ["sections", "chapters", "hs4_nodes", "hs6_nodes", "hs_products"]
+        tables = ["sections", "chapters", "hs4_nodes", "hs6_nodes"]
         for table in tables:
             export_table_to_csv(table, conn)
+        # Export hs_products to a new file to avoid permission issues
+        export_table_to_csv("hs_products", conn, os.path.join(OUTPUT_DIR, "hs_products_v3.csv"))
         conn.close()
     except Exception as e:
         print(f"Error during CSV export: {e}")
