@@ -18,3 +18,4 @@ great_expectations
 prefect
 
 spacy
+unidecode
