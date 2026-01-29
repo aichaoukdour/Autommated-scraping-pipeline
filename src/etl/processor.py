@@ -1,11 +1,12 @@
-
 import time
 import psycopg2
 from extract import extract_json
 from transform import transform
 from load import load_product, record_audit_log
+from scraper.config import logger, ScraperConfig
 
-DSN = "dbname=hs user=postgres password=postgres host=localhost port=5433"
+_config = ScraperConfig()
+DSN = _config.db_dsn
 
 def process_single_record(raw: dict, conn):
     """Transform and load a single raw record into the database."""
@@ -22,7 +23,7 @@ def process_single_record(raw: dict, conn):
         
         duration = int((time.time() - start_time) * 1000)
         record_audit_log(hs_code, "SUCCESS", None, duration, conn)
-        print(f"✅ Success: {hs_code}")
+        logger.info(f"Success: {hs_code}")
         
     except Exception as e:
         duration = int((time.time() - start_time) * 1000)
@@ -31,7 +32,7 @@ def process_single_record(raw: dict, conn):
         if "validation" in error_msg.lower() or "valueerror" in error_msg.lower():
             status = "VALIDATION_ERROR"
         
-        print(f"❌ ERROR: {status} for {hs_code}: {error_msg}")
+        logger.error(f"{status} for {hs_code}: {error_msg}")
         record_audit_log(hs_code, status, error_msg, duration, conn)
         conn.rollback()
 
