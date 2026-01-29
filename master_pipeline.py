@@ -10,10 +10,25 @@ sys.path.append(str(Path(__file__).parent / "src" / "etl"))
 
 import scraper
 import init_db
-from etl import main as etl_main
-from etl import resume_utils
+from etl import processor as etl_processor
 
 import argparse
+from typing import Set
+import psycopg2
+
+def get_existing_hs_codes(dsn: str) -> Set[str]:
+    """Fetch all hs10 codes currently in the database."""
+    try:
+        conn = psycopg2.connect(dsn)
+        cur = conn.cursor()
+        cur.execute("SELECT hs10 FROM hs_products")
+        codes = {row[0] for row in cur.fetchall()}
+        cur.close()
+        conn.close()
+        return codes
+    except Exception as e:
+        print(f"⚠️ Warning: Could not fetch existing codes from DB: {e}")
+        return set()
 
 def run_pipeline(limit=None, force_etl=False):
     print(f"🚀 Starting Master Pipeline (Limit: {limit}, Force ETL: {force_etl})...")
@@ -28,7 +43,7 @@ def run_pipeline(limit=None, force_etl=False):
         print("🔄 Force ETL enabled: Re-processing all codes.")
         existing_codes = set()
     else:
-        existing_codes = resume_utils.get_existing_hs_codes(etl_main.DSN)
+        existing_codes = get_existing_hs_codes(etl_processor.DSN)
         print(f"⏭️ Skipping {len(existing_codes)} already processed codes.")
     
     # 1. Database Initialization
@@ -38,13 +53,13 @@ def run_pipeline(limit=None, force_etl=False):
     # 2. Scraping & ETL Layer (Streaming)
     print("\n--- Phase 2: Integrated Scraping & ETL (Streaming) ---")
     import psycopg2
-    conn = psycopg2.connect(etl_main.DSN)
+    conn = psycopg2.connect(etl_processor.DSN)
     try:
         count = 0
         # Iterate over results as they are yielded by the scraper
         for raw_record in scraper.main(csv_path=csv_input, skip_codes=existing_codes, save_to_file=False, limit=limit):
             # Process each record immediately
-            etl_main.process_single_record(raw_record, conn)
+            etl_processor.process_single_record(raw_record, conn)
             count += 1
             
         if count == 0:

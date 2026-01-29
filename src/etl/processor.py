@@ -1,3 +1,4 @@
+
 import time
 import psycopg2
 from extract import extract_json
@@ -5,8 +6,6 @@ from transform import transform
 from load import load_product, record_audit_log
 
 DSN = "dbname=hs user=postgres password=postgres host=localhost port=5433"
-INPUT_PATH = "../adil_detailed.json"
-
 
 def process_single_record(raw: dict, conn):
     """Transform and load a single raw record into the database."""
@@ -44,13 +43,3 @@ def process_data(raw_list: list, dsn: str = DSN):
             process_single_record(raw, conn)
     finally:
         conn.close()
-
-def run(input_path: str = INPUT_PATH):
-    # Load all raw records from file
-    raw_list = extract_json(input_path)
-    print(f"Processing {len(raw_list)} record(s) from file.")
-    process_data(raw_list)
-
-
-if __name__ == "__main__":
-    run()
