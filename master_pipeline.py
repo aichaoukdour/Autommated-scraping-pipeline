@@ -11,6 +11,7 @@ sys.path.append(str(Path(__file__).parent / "src" / "etl"))
 import scraper
 import init_db
 from etl import processor as etl_processor
+from scraper.config import logger
 
 import argparse
 from typing import Set
@@ -31,27 +32,27 @@ def get_existing_hs_codes(dsn: str) -> Set[str]:
         return set()
 
 def run_pipeline(limit=None, force_etl=False):
-    print(f"🚀 Starting Master Pipeline (Limit: {limit}, Force ETL: {force_etl})...")
+    logger.info(f"Starting Master Pipeline (Limit: {limit}, Force ETL: {force_etl})...")
     
     # Define paths relative to this script (project root)
     root_dir = Path(__file__).parent
     csv_input = root_dir / "Code Sh Import - Feuil.csv"
     
     # 0. Check for existing codes (Resume Capability)
-    print("\n--- Phase 0: Checking for existing data ---")
+    logger.info("Phase 0: Checking for existing data")
     if force_etl:
-        print("🔄 Force ETL enabled: Re-processing all codes.")
+        logger.info("Force ETL enabled: Re-processing all codes.")
         existing_codes = set()
     else:
         existing_codes = get_existing_hs_codes(etl_processor.DSN)
-        print(f"⏭️ Skipping {len(existing_codes)} already processed codes.")
+        logger.info(f"Skipping {len(existing_codes)} already processed codes.")
     
     # 1. Database Initialization
-    print("\n--- Phase 1: Database Initialization ---")
+    logger.info("Phase 1: Database Initialization")
     init_db.init_db()
     
     # 2. Scraping & ETL Layer (Streaming)
-    print("\n--- Phase 2: Integrated Scraping & ETL (Streaming) ---")
+    logger.info("Phase 2: Integrated Scraping & ETL (Streaming)")
     import psycopg2
     conn = psycopg2.connect(etl_processor.DSN)
     try:
@@ -63,14 +64,14 @@ def run_pipeline(limit=None, force_etl=False):
             count += 1
             
         if count == 0:
-            print("⏭️ No new codes to process (all skipped or error).")
+            logger.info("No new codes to process (all skipped or error).")
         else:
-            print(f"\n✅ Total records processed: {count}")
+            logger.info(f"Total records processed: {count}")
             
     finally:
         conn.close()
     
-    print("\n✅ Master Pipeline completed successfully!")
+    logger.info("Master Pipeline completed successfully!")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Master Pipeline for Scraping and ETL")
