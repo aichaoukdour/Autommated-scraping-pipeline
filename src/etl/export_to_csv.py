@@ -2,12 +2,45 @@ import psycopg2
 import csv
 import os
 import json
+import re
 from psycopg2.extras import DictCursor
 
 DSN = "dbname=hs user=postgres password=postgres host=localhost port=5433"
 # Resolve output path relative to script location
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_DIR = os.path.join(SCRIPT_DIR, "output_csv")
+
+# Columns that need RAG-optimized cleaning (remove hierarchical dash markers)
+RAG_CLEAN_COLUMNS = ['hs6_label', 'designation', 'section_label', 'chapter_label', 'hs4_label', 'hs8_label']
+
+def clean_hs_label_for_rag(text):
+    """
+    Cleans HS code hierarchical labels for RAG use.
+    Removes leading dash markers (- -, - - -, etc.) and cleans semicolons.
+    """
+    if not text or text == 'NA':
+        return text
+    
+    clean_text = text
+    
+    # Remove leading hierarchical dash patterns like "- -", "- - -", "– – –" etc.
+    clean_text = re.sub(r'^[\s\-–—]+', '', clean_text)
+    
+    # Remove hierarchical markers after semicolons (e.g., ";- - - text" -> "; text")
+    clean_text = re.sub(r';[\s\-–—]+', '; ', clean_text)
+    
+    # Clean up percentage markers like "%–" or "%" at weird positions
+    clean_text = re.sub(r'%[\s\-–—]+', '', clean_text)
+    
+    # Remove standalone dash-space patterns in the middle of text
+    clean_text = re.sub(r'\s[\-–—]\s[\-–—]\s[\-–—]\s', ' ', clean_text)
+    clean_text = re.sub(r'\s[\-–—]\s[\-–—]\s', ' ', clean_text)
+    
+    # Clean up multiple spaces
+    clean_text = ' '.join(clean_text.split())
+    
+    return clean_text.strip() or text
+
 
 def export_table_to_csv(table_name, conn, filename=None):
     with conn.cursor(cursor_factory=DictCursor) as cur:
@@ -37,6 +70,9 @@ def export_table_to_csv(table_name, conn, filename=None):
                 for key, value in list(row_dict.items()):
                     if isinstance(value, (dict, list)):
                         row_dict[key] = json.dumps(value, ensure_ascii=False)
+                    # Apply RAG cleaning to label columns
+                    elif key in RAG_CLEAN_COLUMNS and isinstance(value, str):
+                        row_dict[key] = clean_hs_label_for_rag(value)
                 
                 writer.writerow(row_dict)
 

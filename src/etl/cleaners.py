@@ -30,6 +30,38 @@ def parse_french_date(text: Optional[str]) -> Optional[str]:
     dt = dateparse(text, languages=["fr"])
     return dt.date().isoformat() if dt else None
 
+
+def clean_hs_label_for_rag(text: Optional[str]) -> Optional[str]:
+    """
+    Cleans HS code hierarchical labels for RAG use.
+    Removes leading dash markers (- -, - - -, etc.) and cleans semicolons.
+    Keeps only the descriptive text for optimal retrieval.
+    """
+    if not text:
+        return None
+    
+    clean_text = text
+    
+    # Remove leading hierarchical dash patterns like "- -", "- - -", "– – –" etc.
+    # Handles various dash types (hyphen, en-dash, em-dash)
+    clean_text = re.sub(r'^[\s\-–—]+', '', clean_text)
+    
+    # Remove hierarchical markers after semicolons (e.g., ";- - - text" -> "; text")
+    clean_text = re.sub(r';[\s\-–—]+', '; ', clean_text)
+    
+    # Clean up percentage markers like "%–" or "%" at weird positions
+    clean_text = re.sub(r'%[\s\-–—]+', '', clean_text)
+    
+    # Remove standalone dash-space patterns in the middle of text
+    clean_text = re.sub(r'\s[\-–—]\s[\-–—]\s[\-–—]\s', ' ', clean_text)
+    clean_text = re.sub(r'\s[\-–—]\s[\-–—]\s', ' ', clean_text)
+    
+    # Clean up multiple spaces and normalize
+    clean_text = ' '.join(clean_text.split())
+    
+    return clean_text.strip() or None
+
+
 def remove_adil_boilerplate(text: Optional[str]) -> Optional[str]:
     """Removes standard ADiL headers/footers and navigational debris from text."""
     if not text:

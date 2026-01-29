@@ -2,7 +2,7 @@
 
 import re
 from datetime import datetime
-from cleaners import clean_text_block, parse_french_date, parse_percentage, remove_adil_boilerplate
+from cleaners import clean_text_block, parse_french_date, parse_percentage, remove_adil_boilerplate, clean_hs_label_for_rag
 from schemas import HSProduct
 
 def transform(raw: dict) -> dict:
@@ -343,11 +343,12 @@ def transform(raw: dict) -> dict:
             level_labels[active_level].append(line)
 
     # 3. Finalize Labels
-    hs4_label = remove_adil_boilerplate(" ".join(level_labels["HS4"])) or "NA"
-    hs6_label = remove_adil_boilerplate(" ".join(level_labels["HS6"])) or "NA"
-    hs8_label = remove_adil_boilerplate(" ".join(level_labels["HS8"])) or "NA"
+    # Apply RAG-optimized cleaning to remove hierarchical dashes like "- -", "- - -"
+    hs4_label = clean_hs_label_for_rag(remove_adil_boilerplate(" ".join(level_labels["HS4"]))) or "NA"
+    hs6_label = clean_hs_label_for_rag(remove_adil_boilerplate(" ".join(level_labels["HS6"]))) or "NA"
+    hs8_label = clean_hs_label_for_rag(remove_adil_boilerplate(" ".join(level_labels["HS8"]))) or "NA"
     # For HS10, if we found nothing in the sequence, fallback to the main designation
-    hs10_label = remove_adil_boilerplate(" ".join(level_labels["HS10"])) or designation
+    hs10_label = clean_hs_label_for_rag(remove_adil_boilerplate(" ".join(level_labels["HS10"]))) or designation
 
     # Ensure designation is synced with the most specific extracted label
     designation = hs10_label if hs10_label != "NA" else designation
@@ -373,12 +374,12 @@ def transform(raw: dict) -> dict:
     # ============================================================================
     product = {
         "hs_code": hs_code,
-        "section_label": remove_adil_boilerplate(section_label),
-        "chapter_label": remove_adil_boilerplate(chapter_label),
+        "section_label": clean_hs_label_for_rag(remove_adil_boilerplate(section_label)),
+        "chapter_label": clean_hs_label_for_rag(remove_adil_boilerplate(chapter_label)),
         "hs4_label": hs4_label,
         "hs6_label": hs6_label,
         "hs8_label": hs8_label,
-        "designation": remove_adil_boilerplate(designation),
+        "designation": clean_hs_label_for_rag(remove_adil_boilerplate(designation)),
         "hierarchy": {
             "section_code": section_code,
             "section_label": remove_adil_boilerplate(section_label),
