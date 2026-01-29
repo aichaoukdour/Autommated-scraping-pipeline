@@ -1,232 +1,286 @@
+"""ADIL Text Parser module."""
 import re
-from ftfy import fix_text
+from datetime import datetime
+from cleaners import parse_french_date, remove_adil_boilerplate, clean_hs_label_for_rag
 
-def parse_hs_hierarchy(raw_text: str) -> dict:
-    """
-    Extract HS hierarchy dynamically: 4 / 6 / 10 digits and their descriptions.
-    """
-    text = fix_text(raw_text)
-    lines = [l.strip() for l in text.splitlines() if l.strip()]
-
-    result = {
-        "parent_category": "NA", 
-        "parent_description": None,
-        "sub_category": "NA", 
-        "sub_description": None,
-        "product_name": "NA", 
-        "unit": None
-    }
-
-    for i, line in enumerate(lines):
-        if re.fullmatch(r"\d{2}\.\d{2}", line):
-            result["parent_category"] = line.replace(".", "")
-            # Look ahead for description
-            if i + 1 < len(lines):
-                # Usually description follows, unless it's another code
-                next_line = lines[i+1]
-                if not re.match(r"\d", next_line) and not next_line.startswith("-"):
-                     result["parent_description"] = next_line
-
-        elif re.fullmatch(r"\d{4}\.\d{2}", line):
-            result["sub_category"] = line.replace(".", "")
-            if i + 1 < len(lines):
-                next_line = lines[i+1]
-                if next_line.startswith("-"):
-                    result["sub_description"] = next_line.lstrip("- ").strip()
-                elif not re.match(r"\d", next_line):
-                    result["sub_description"] = next_line
-
-        elif line.startswith("-"):
-            # This is likely the final product name if it hasn't been captured as sub_description
-            # Ideally we want the one closest to the end or identifiable as the 10-digit desc
-            # But the structure is: 0101.29 -> - - Autres -> 10 00 -> - - - destinés à la boucherie
-            # The simple startswith("-") logic in previous version might catch "Autres" as product name if not careful
-            # We'll stick to capture it, but maybe refine.
-            # In the sample: "10 00" is followed by "- - - destinés..."
-            pass
-
-        elif re.fullmatch(r"\d{2} \d{2}", line) or re.fullmatch(r"\d{4}", line):
-             # 10 00 part of the 10-digit code (single line)
-             if i + 1 < len(lines):
-                 next_line = lines[i+1]
-                 if next_line.startswith("-"):
-                     result["product_name"] = next_line.lstrip("- ").strip()
-
-        elif re.fullmatch(r"\d{2}", line):
-             # Could be first part of split code (e.g. 10\n00)
-             if i + 1 < len(lines) and re.fullmatch(r"\d{2}", lines[i+1]):
-                 # Confirmed split code
-                 if i + 2 < len(lines):
-                     next_line = lines[i+2]
-                     if next_line.startswith("-"):
-                         result["product_name"] = next_line.lstrip("- ").strip()
-
-        elif line.isalpha() and len(line) <= 3:
-            result["unit"] = line
-            
-    return result
-
-def parse_annual_volumes(raw_text: str):
-    # This might need updating if we strictly use schemas, but for now returned dict/list is fine
-    # if we wrap it later.
-    lines = [l.strip() for l in raw_text.splitlines() if l.strip()]
+def extract_section_and_chapter(sections: dict, pos_tarifaire: dict):
+    """Extract Section and Chapter codes/labels."""
+    key_values = pos_tarifaire.get("key_values", {})
+    raw_text = pos_tarifaire.get("raw_text", "")
     
-    # Try to split by "Année" and "Poids" headers if possible
-    years = []
-    weights = []
+    section_code = "NA"
+    section_label = "NA"
+    section_raw = key_values.get("SECTION", "")
     
-    current_section = None
+    if not section_raw and raw_text:
+        match = re.search(r"SECTION\s*:\s*(\d{2})", raw_text)
+        if match:
+            section_code = match.group(1)
+            match_lbl = re.search(
+                rf"SECTION\s*:\s*{section_code}\s*[\-–—]\s*(.+?)(?:\n|CHAPITRE|$)", 
+                raw_text, 
+                re.DOTALL | re.I
+            )
+            if match_lbl:
+                section_label = match_lbl.group(1).strip()
     
-    for line in lines:
-        if "Année" in line:
-            current_section = "years"
-            continue
-        elif "Poids" in line:
-            current_section = "weights"
-            continue
-            
-        if current_section == "years":
-            # Filter for 4-digit years
-            if line.isdigit() and len(line) == 4:
-                years.append(int(line))
-        elif current_section == "weights":
-            # Filter for numbers
-            clean_num = line.replace(" ", "").replace("\xa0", "")
-            if clean_num.isdigit():
-                weights.append(float(clean_num))
-    
-    # Fallback if specific headers weren't found or parsing failed
-    history = []
-    # Zip safely
-    for y, w in zip(years, weights):
-        history.append({"year": y, "weight_kg": w})
-        
-    return history
+    if section_raw and section_code == "NA":
+        match = re.match(r"^(\d{2})\s*[\-–—]\s*(.+)$", section_raw.strip(), re.DOTALL)
+        if match:
+            section_code = match.group(1)
+            section_label = remove_adil_boilerplate(match.group(2).strip())
+        else:
+            parts = section_raw.split("-", 1)
+            if len(parts) == 2:
+                section_code = parts[0].strip()
+                section_label = remove_adil_boilerplate(parts[1].strip())
 
-def parse_suppliers_or_clients(raw_text: str):
-    lines = [l.strip() for l in raw_text.splitlines() if l.strip()]
+    chapter_code = "NA"
+    chapter_label = "NA"
+    chapter_raw = key_values.get("CHAPITRE", "")
     
-    countries = []
-    weights = []
-    
-    current_section = None
-    
-    for line in lines:
-        if line in ["Pays", "Poids"]:
-            current_section = line
-            continue
-            
-        if current_section == "Pays":
-            # Exclude some noise if any, but usually it's just country names
-            if len(line) > 1 and not line.replace(" ", "").isdigit():
-                countries.append(line)
-        elif current_section == "Poids":
-            clean_num = line.replace(" ", "").replace("\xa0", "")
-            if clean_num.isdigit():
-                weights.append(float(clean_num))
+    if not chapter_raw and raw_text:
+        match = re.search(r"CHAPITRE\s*:\s*(\d{2})", raw_text)
+        if match:
+            chapter_code = match.group(1)
+            match_lbl = re.search(
+                rf"CHAPITRE\s*:\s*{chapter_code}\s*[\-–—]\s*(.+?)(?:\n|DESIGNATION|$)", 
+                raw_text, 
+                re.DOTALL | re.I
+            )
+            if match_lbl:
+                chapter_label = match_lbl.group(1).strip()
+
+    if chapter_raw and chapter_code == "NA":
+        match = re.match(r"^(\d{2})\s*[\-–—]\s*(.+)$", chapter_raw.strip(), re.DOTALL)
+        if match:
+            chapter_code = match.group(1)
+            chapter_label = remove_adil_boilerplate(match.group(2).strip())
+        else:
+            parts = chapter_raw.split("-", 1)
+            if len(parts) == 2:
+                chapter_code = parts[0].strip()
+                chapter_label = remove_adil_boilerplate(parts[1].strip())
                 
-    results = []
-    for c, w in zip(countries, weights):
-        results.append({"country": c, "weight_kg": w})
+    return section_code, section_label, chapter_code, chapter_label
+
+
+def extract_designation(pos_tarifaire: dict, hs_code: str):
+    """Extract product designation from text or metadata."""
+    key_values = pos_tarifaire.get("key_values", {})
+    raw_text = pos_tarifaire.get("raw_text", "")
+    designation = "NA"
+    
+    hs6_fmt = f"{hs_code[:4]}.{hs_code[4:6]}"
+    hs6_idx = raw_text.find(hs6_fmt)
+    
+    if hs6_idx != -1:
+        text_after = raw_text[hs6_idx:]
         
-    return results
-
-def parse_documents(raw_text: str):
-    from .schemas import DocumentItem
-    lines = [l.strip() for l in raw_text.splitlines() if l.strip()]
-    
-    docs = []
-    start_parsing = False
-    buffer = []
-    
-    # Identify table start
-    for line in lines:
-        if "Emetteur" in line:
-            start_parsing = True
-            continue
+        hs10_pattern = rf"{re.escape(hs6_fmt)}\s*\n?\s*(\d{{2}})\s*\n?\s*(\d{{2}})\s*\n?\s*-\s*-+\s*(.*?)(?:\n|$)"
+        match = re.search(hs10_pattern, text_after, re.DOTALL)
         
-        if start_parsing:
-            buffer.append(line)
-            
-    # Process buffer in chunks of 3 (Code, Name, Issuer)
-    seen_docs = set()
-    for i in range(0, len(buffer), 3):
-        if i + 2 < len(buffer):
-            code = buffer[i]
-            name = buffer[i+1]
-            issuer = buffer[i+2]
-            
-            # Simple deduplication based on unique tuple
-            doc_key = (code, name, issuer)
-            if doc_key not in seen_docs:
-                docs.append(DocumentItem(code=code, name=name, issuer=issuer, raw=f"{code} {name} {issuer}"))
-                seen_docs.add(doc_key)
-            
-    return docs
-
-def parse_agreements(raw_text: str):
-    from .schemas import AccordItem
-    lines = [l.strip() for l in raw_text.splitlines() if l.strip()]
+        if match and match.group(1) == hs_code[6:8] and match.group(2) == hs_code[8:10]:
+            designation = match.group(3).strip()
+        else:
+            match_des = re.search(r"-\s*-+\s*(.*?)(?:\n|$)", text_after)
+            if match_des:
+                designation = match_des.group(1).strip()
     
-    agreements = []
-    seen_agreements = set()
-    start_parsing = False
+    if designation == "NA" or not designation:
+        designation = key_values.get("DESIGNATION DU PRODUIT", "NA")
     
-    for line in lines:
-        # Skip headers and noise
-        if "( en % )" in line:
-            start_parsing = True
-            continue
-            
-        if line.strip() in ["DI", "TPI", "Accords"]:
-            continue
-            
-        if start_parsing:
-            # Attempt to split by last two tokens (rates)
-            # Regex to capture: Name + Rate1 + Rate2
-            # Rate can be number or (*) or 0%
-            match = re.search(r"^(.*?)\s+([\d,\.]+%?|\(\*\))\s+([\d,\.]+%?|\(\*\))$", line)
-            if match:
-                name = match.group(1).strip()
-                di_rate = match.group(2)
-                tpi_rate = match.group(3)
-                
-                agr_key = (name, di_rate, tpi_rate)
-                if agr_key not in seen_agreements:
-                    agreements.append(AccordItem(
-                        country=name, 
-                        DI=di_rate,
-                        TPI=tpi_rate,
-                        raw=line
-                    ))
-                    seen_agreements.add(agr_key)
-            else:
-                # Fallback if regex fails
-                # Note: This fallback might be too broad, but we'll keep it simple
-                if line and len(line) > 3 and line not in seen_agreements:
-                     # Attempt to parse lines that might be formatted differently or just country names
-                     # For now, if we can't parse rates, we might just skip or add as raw
-                     pass
-                
-    return agreements
+    if designation and designation != "NA":
+        designation = re.sub(r'â€"', '-', designation)
+        designation = re.sub(r'\s+', ' ', designation)
+        designation = remove_adil_boilerplate(designation)
+        
+    return designation
 
-def parse_taxation_from_text(raw_text: str):
-    from .schemas import TaxItem
-    # Simple regex based parser for standard taxation lines if they follow "Code Label Rate" pattern
-    # This is a placeholder as taxation structure varies 
-    lines = [l.strip() for l in raw_text.splitlines() if l.strip()]
+
+def extract_taxes(sections: dict):
+    """Extract taxes and duties."""
+    tax_content = sections.get("Droits et Taxes", {})
+    raw_text = tax_content.get("raw_text", "")
     taxes = []
     
-    for line in lines:
-        # Example pattern: DI Droit d'importation 2.5%
-        # Or: TVA Taxe sur la valeur ajoutée 20%
-        # Needs refinement based on actual text
-        match = re.match(r"^([A-Z]+)\s+(.*?)\s+([\d,\.]+\s?%|Exonéré|\(\*\))$", line)
-        if match:
-            taxes.append(TaxItem(
-                code=match.group(1),
-                label=match.group(2).strip(),
-                raw=match.group(3)
-            ))
+    if raw_text:
+        clean_raw = " ".join(raw_text.split())
+        matches = re.findall(r"-\s*([^(*]+?)\s*\*?\s*\(\s*([A-Z]+)\s*\)\s*:\s*([^%-]+%)", clean_raw)
+        
+        for label, code, value in matches:
+            taxes.append({
+                "code": code.strip(),
+                "label": remove_adil_boilerplate(label.strip().replace("*", "")),
+                "raw": value.strip()
+            })
+            
+    if not taxes:
+        tax_kv = tax_content.get("key_values", {})
+        for key, value in tax_kv.items():
+            if any(x in key for x in ["Position tarifaire", "Situation du", "Source", "ADiL"]):
+                continue
+            
+            match_code = re.search(r"\(([^)]+)\)", key)
+            code = match_code.group(1).strip() if match_code else "NA"
+            label = re.sub(r"^-?\s*", "", key).split("(")[0].strip().replace("*", "")
+            
+            taxes.append({
+                "code": code,
+                "label": remove_adil_boilerplate(label),
+                "raw": value
+            })
     return taxes
 
+
+def extract_documents(sections: dict):
+    """Extract required documents."""
+    doc_content = sections.get("Documents et Normes", {})
+    raw_text = doc_content.get("raw_text", "")
+    documents = []
+    
+    lines = [l.strip() for l in raw_text.splitlines() if l.strip()]
+    
+    try:
+        start_idx = -1
+        for i, line in enumerate(lines):
+            if "Emetteur" in line:
+                start_idx = i + 1
+                break
+        
+        if start_idx != -1:
+            for i in range(start_idx, len(lines), 3):
+                if i + 2 < len(lines):
+                    documents.append({
+                        "code": lines[i],
+                        "name": remove_adil_boilerplate(lines[i+1]),
+                        "issuer": remove_adil_boilerplate(lines[i+2]),
+                        "raw": f"{lines[i]} {lines[i+1]}"
+                    })
+    except Exception as e:
+        print(f"WARNING: Parse error in documents: {e}")
+        
+    return documents
+
+
+def extract_agreements(sections: dict):
+    """Extract trade agreements."""
+    agg_content = sections.get("Accords et Convention", {})
+    raw_text = agg_content.get("raw_text", "")
+    agreements = []
+    
+    lines = [l.strip() for l in raw_text.splitlines() if l.strip()]
+    
+    start_idx = -1
+    for i, line in enumerate(lines):
+        if line == "TPI":
+            if i + 1 < len(lines) and "%" in lines[i+1]:
+                start_idx = i + 2
+                break
+    
+    if start_idx != -1:
+        for i in range(start_idx, len(lines) - 3, 4):
+            country = lines[i]
+            list_type = lines[i + 1]
+            di_rate = lines[i + 2]
+            tpi_rate = lines[i + 3]
+            
+            if country.startswith("(") or "Taux" in country or "Source" in country:
+                continue
+                
+            agreements.append({
+                "country": country,
+                "list": list_type,
+                "DI": di_rate,
+                "TPI": tpi_rate,
+                "raw": f"{country} {list_type} DI:{di_rate} TPI:{tpi_rate}"
+            })
+            
+    return agreements
+
+
+def extract_history(sections: dict):
+    """Extract import duty history."""
+    content = sections.get("Historique Droit d'Importation", {})
+    raw_text = content.get("raw_text", "")
+    history = []
+    
+    lines = [l.strip() for l in raw_text.splitlines() if l.strip()]
+    
+    for i, line in enumerate(lines):
+        if re.match(r"\d{2}/\d{2}/\d{4}", line):
+            rate = lines[i+2] if i + 2 < len(lines) else ""
+            history.append({
+                "date": parse_french_date(line),
+                "raw": f"Taux: {rate}"
+            })
+    return history
+
+
+def refine_hierarchy_labels(pos_tarifaire: dict, hs_code: str, designation: str):
+    """Stateful extraction of hierarchy labels."""
+    raw_text = pos_tarifaire.get("raw_text", "")
+    
+    hs4_c = hs_code[:4]
+    hs6_c = hs_code[:6]
+    hs8_part = hs_code[6:8]
+    hs10_part = hs_code[8:10]
+
+    hs4_fmt = f"{hs4_c[:2]}.{hs4_c[2:]}"
+    hs6_fmt = f"{hs6_c[:4]}.{hs6_c[4:]}"
+    
+    start_marker = "Codification" if "Codification" in raw_text else "01.01"
+    idx = raw_text.find(start_marker)
+    text = raw_text[idx:] if idx != -1 else raw_text
+
+    lines = [l.strip() for l in text.splitlines() if l.strip()]
+    clean_lines = lines[:-1] if lines else []
+    
+    active_level = None
+    labels = {"HS4": [], "HS6": [], "HS8": [], "HS10": []}
+
+    for line in clean_lines:
+        if line == hs4_fmt:
+            active_level = "HS4"
+            continue
+        elif line == hs6_fmt:
+            active_level = "HS6"
+            continue
+        elif active_level == "HS6" and line == hs8_part:
+            active_level = "HS8"
+            continue
+        elif active_level == "HS8" and line == hs10_part:
+            active_level = "HS10"
+            continue
+        
+        if active_level and not re.match(r"^\d+[\d\.]*$", line):
+            labels[active_level].append(line)
+
+    hs4 = clean_hs_label_for_rag(remove_adil_boilerplate(" ".join(labels["HS4"]))) or "NA"
+    hs6 = clean_hs_label_for_rag(remove_adil_boilerplate(" ".join(labels["HS6"]))) or "NA"
+    hs8 = clean_hs_label_for_rag(remove_adil_boilerplate(" ".join(labels["HS8"]))) or "NA"
+    hs10 = clean_hs_label_for_rag(remove_adil_boilerplate(" ".join(labels["HS10"]))) or designation
+
+    final_des = hs10 if hs10 != "NA" else designation
+    
+    return {
+        "hs4_label": hs4,
+        "hs6_label": hs6,
+        "hs8_label": hs8,
+        "hs10_label": hs10,
+        "final_designation": final_des
+    }
+
+
+def extract_unit_of_measure(pos_tarifaire: dict, raw_text: str):
+    """Extract Unit of Measure."""
+    uom = "NA"
+    if raw_text:
+        lines = [l.strip() for l in raw_text.splitlines() if l.strip()]
+        if lines:
+            pot_unit = lines[-1]
+            if len(pot_unit) <= 5: 
+                uom = pot_unit
+            else:
+                uom = pos_tarifaire.get("metadata", {}).get("unit", "U")
+    return uom
