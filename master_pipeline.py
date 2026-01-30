@@ -55,19 +55,35 @@ def run_pipeline(limit=None, force_etl=False):
     logger.info("Phase 2: Integrated Scraping & ETL (Streaming)")
     import psycopg2
     conn = psycopg2.connect(etl_processor.DSN)
+    conn.autocommit = False # Ensure we control transactions
+    
     try:
         count = 0
+        batch_size = 50
+        
         # Iterate over results as they are yielded by the scraper
         for raw_record in scraper.main(csv_path=csv_input, skip_codes=existing_codes, save_to_file=False, limit=limit):
-            # Process each record immediately
-            etl_processor.process_single_record(raw_record, conn)
+            # Process record but don't commit yet
+            etl_processor.process_single_record(raw_record, conn, commit_on_success=False)
             count += 1
             
+            # Periodic batch commit for performance
+            if count % batch_size == 0:
+                conn.commit()
+                logger.info(f"💾 Batch committed at {count} records.")
+                
+        # Final commit for remaining records
+        conn.commit()
+        
         if count == 0:
             logger.info("No new codes to process (all skipped or error).")
         else:
             logger.info(f"Total records processed: {count}")
             
+    except Exception as e:
+        conn.rollback()
+        logger.error(f"Pipeline failed: {e}")
+        raise e
     finally:
         conn.close()
     

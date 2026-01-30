@@ -8,7 +8,7 @@ from scraper.config import logger, ScraperConfig
 _config = ScraperConfig()
 DSN = _config.db_dsn
 
-def process_single_record(raw: dict, conn):
+def process_single_record(raw: dict, conn, commit_on_success: bool = False):
     """Transform and load a single raw record into the database."""
     hs_code = raw.get("hs_code", "Unknown")
     start_time = time.time()
@@ -19,8 +19,10 @@ def process_single_record(raw: dict, conn):
         
         # 2. Load
         load_product(product, conn)
-        conn.commit()
         
+        if commit_on_success:
+            conn.commit()
+            
         duration = int((time.time() - start_time) * 1000)
         record_audit_log(hs_code, "SUCCESS", None, duration, conn)
         logger.info(f"Success: {hs_code}")

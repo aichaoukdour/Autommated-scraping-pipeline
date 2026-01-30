@@ -7,13 +7,33 @@ from dataclasses import asdict
 from .config import ScraperConfig, logger
 from .scraper import ADILScraper
 
+import threading
+
+_thread_local = threading.local()
+
+def get_scraper(config: ScraperConfig) -> ADILScraper:
+    if not hasattr(_thread_local, "scraper") or not _thread_local.scraper.is_alive():
+        _thread_local.scraper = ADILScraper(config)
+    return _thread_local.scraper
+
 def scrape_single_code(hs_code: str, config: ScraperConfig) -> Dict:
-    scraper = ADILScraper(config)
+    scraper = get_scraper(config)
     try:
+        # Periodic refresh to keep browser stable over 13k codes
+        if scraper.codes_processed >= 100:
+            logger.info(f"Thread reaching 100 codes. Refreshing browser session...")
+            scraper.restart_driver()
+            
         result = scraper.scrape_hs_code(hs_code)
         return asdict(result)
-    finally:
-        scraper.close()
+    except Exception as e:
+        logger.error(f"Error in thread scraping {hs_code}: {e}")
+        # On structural errors, a restart is safer
+        try:
+            scraper.restart_driver()
+        except:
+            pass
+        raise e
 
 def main(
     csv_path: Optional[Path] = None, 
@@ -53,13 +73,24 @@ def main(
     with ThreadPoolExecutor(max_workers=config.max_workers) as executor:
         future_map = {executor.submit(scrape_single_code, code, config): code for code in codes}
         
-        for future in as_completed(future_map):
-            code = future_map[future]
-            try:
-                res = future.result()
-                logger.info(f"✅ Finished Scraping {code}")
-                yield res
-            except Exception as e:
-                logger.error(f"❌ Error on {code}: {e}")
+        try:
+            for future in as_completed(future_map):
+                code = future_map[future]
+                try:
+                    res = future.result()
+                    logger.info(f"✅ Finished Scraping {code}")
+                    yield res
+                except Exception as e:
+                    logger.error(f"❌ Error on {code}: {e}")
+        finally:
+            # Cleanup scrapers in all threads
+            logger.info("Cleaning up shared browser instances...")
+            def cleanup():
+                if hasattr(_thread_local, "scraper"):
+                    _thread_local.scraper.close()
+            
+            # Submit cleanup tasks to each worker thread
+            for _ in range(config.max_workers):
+                executor.submit(cleanup)
 
     logger.info("Batch scraping sequence completed.")

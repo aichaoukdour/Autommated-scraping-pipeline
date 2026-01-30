@@ -142,23 +142,30 @@ def extract_documents(sections: dict):
     lines = [l.strip() for l in raw_text.splitlines() if l.strip()]
     
     try:
-        start_idx = -1
-        for i, line in enumerate(lines):
-            if "Emetteur" in line:
-                start_idx = i + 1
-                break
+        current_doc = {}
+        for line in lines:
+            # Detect starting point (header headers don't contain data)
+            if "Document" in line or "Intitulé" in line or "Emetteur" in line:
+                continue
+            
+            # Use patterns or heuristics to identify fields
+            # Codes are usually short or have specific patterns (e.g. 104, 114)
+            if re.match(r"^\d{3,4}$", line) or (not current_doc and len(line) < 10):
+                if current_doc.get("code"): # Save previous if complete
+                    documents.append(current_doc)
+                current_doc = {"code": line, "name": "NA", "issuer": "NA", "raw": line}
+            elif current_doc:
+                if current_doc["name"] == "NA":
+                    current_doc["name"] = remove_adil_boilerplate(line)
+                    current_doc["raw"] += f" {line}"
+                elif current_doc["issuer"] == "NA":
+                    current_doc["issuer"] = remove_adil_boilerplate(line)
         
-        if start_idx != -1:
-            for i in range(start_idx, len(lines), 3):
-                if i + 2 < len(lines):
-                    documents.append({
-                        "code": lines[i],
-                        "name": remove_adil_boilerplate(lines[i+1]),
-                        "issuer": remove_adil_boilerplate(lines[i+2]),
-                        "raw": f"{lines[i]} {lines[i+1]}"
-                    })
+        if current_doc.get("code") and current_doc not in documents:
+            documents.append(current_doc)
+            
     except Exception as e:
-        print(f"WARNING: Parse error in documents: {e}")
+        logger.warning(f"Parse error in documents: {e}")
         
     return documents
 
@@ -171,30 +178,31 @@ def extract_agreements(sections: dict):
     
     lines = [l.strip() for l in raw_text.splitlines() if l.strip()]
     
-    start_idx = -1
-    for i, line in enumerate(lines):
-        if line == "TPI":
-            if i + 1 < len(lines) and "%" in lines[i+1]:
-                start_idx = i + 2
-                break
-    
-    if start_idx != -1:
-        for i in range(start_idx, len(lines) - 3, 4):
-            country = lines[i]
-            list_type = lines[i + 1]
-            di_rate = lines[i + 2]
-            tpi_rate = lines[i + 3]
-            
-            if country.startswith("(") or "Taux" in country or "Source" in country:
+    # Pattern-based extraction: Accords usually follow (Country -> List -> DI -> TPI)
+    # But sometimes lines are merged or missing.
+    try:
+        current_acc = None
+        for line in lines:
+            if any(x in line for x in ["TPI", "Situation", "Source", "ADiL", "Liste", "Pays"]):
                 continue
-                
-            agreements.append({
-                "country": country,
-                "list": list_type,
-                "DI": di_rate,
-                "TPI": tpi_rate,
-                "raw": f"{country} {list_type} DI:{di_rate} TPI:{tpi_rate}"
-            })
+            
+            # Heuristic: Countries usually don't have "%" or "Liste" or numbers-only
+            if not any(char.isdigit() for char in line) and len(line) > 3 and "%" not in line:
+                if current_acc: agreements.append(current_acc)
+                current_acc = {"country": line, "list": "NA", "DI": "0%", "TPI": "0%", "raw": line}
+            elif current_acc:
+                if "%" in line:
+                    if "0%" in current_acc["DI"] and current_acc["DI"] == "0%":
+                        current_acc["DI"] = line
+                    else:
+                        current_acc["TPI"] = line
+                elif "Liste" in line or len(line) < 15:
+                    current_acc["list"] = line
+                current_acc["raw"] += f" {line}"
+        
+        if current_acc: agreements.append(current_acc)
+    except Exception as e:
+        logger.warning(f"Parse error in agreements: {e}")
             
     return agreements
 

@@ -13,6 +13,7 @@ babel
 
 numpy
 pydantic
+python-dotenv
 pandera
 great_expectations
 prefect

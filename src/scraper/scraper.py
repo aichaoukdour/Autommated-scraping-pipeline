@@ -16,16 +16,45 @@ from .browser import WebDriverManager
 class ADILScraper:
     SKIP_KEYWORDS = ['nouvelle recherche', 'recherche', 'retour', 'accueil', 'home']
     
-    def __init__(self, config: ScraperConfig = None):
+    def __init__(self, config: ScraperConfig = None, driver=None):
         self.config = config or ScraperConfig()
-        self.driver = WebDriverManager.create_driver(self.config)
+        self.driver = driver or WebDriverManager.create_driver(self.config)
         self.wait = WebDriverWait(self.driver, self.config.wait_timeout)
         self.processor = TextProcessor()
+        self.codes_processed = 0
+
+    def is_alive(self) -> bool:
+        """Check if the browser is still responsive."""
+        try:
+            self.driver.current_url
+            return True
+        except:
+            return False
+
+    def reset_session(self):
+        """Navigate back to base URL and clear state for the next code."""
+        try:
+            self.driver.get(self.config.base_url)
+            self.driver.switch_to.default_content()
+        except Exception as e:
+            logger.warning(f"Failed to reset session: {e}")
+            self.restart_driver()
+
+    def restart_driver(self):
+        """Force restart the browser."""
+        logger.info("Restarting browser instance...")
+        self.close()
+        self.driver = WebDriverManager.create_driver(self.config)
+        self.wait = WebDriverWait(self.driver, self.config.wait_timeout)
+        self.codes_processed = 0
     
-    def scrape_hs_code(self, hs_code: str) -> ScrapeResult:
+    def scrape_hs_code(self, hs_code: str, auto_reset: bool = True) -> ScrapeResult:
         logger.info(f"Processing HS Code: {hs_code}")
         
         try:
+            if not self.is_alive():
+                self.restart_driver()
+
             self._submit_search(hs_code)
             
             result = ScrapeResult(
@@ -39,6 +68,10 @@ class ADILScraper:
             self._scrape_main_content(result)
             self._scrape_all_sections(result)
             
+            self.codes_processed += 1
+            if auto_reset:
+                self.reset_session()
+
             return result
             
         except Exception as e:
