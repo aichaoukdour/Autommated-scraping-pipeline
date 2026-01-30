@@ -15,8 +15,9 @@ numpy
 pydantic
 python-dotenv
 pandera
-great_expectations
-prefect
+apache-airflow<3.0.0
+psycopg2-binary
+cryptography
 
 spacy
 unidecode
