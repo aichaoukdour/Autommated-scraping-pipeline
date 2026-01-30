@@ -1,4 +1,5 @@
 import time
+import random
 from datetime import datetime
 from typing import Dict, List, Optional
 from dataclasses import asdict
@@ -88,9 +89,15 @@ class ADILScraper:
     def _submit_search(self, hs_code: str) -> None:
         self.driver.get(self.config.base_url)
         
+        # Human jitter before interaction
+        time.sleep(random.uniform(1.0, 2.5))
+        
         input_field = self.wait.until(EC.presence_of_element_located((By.NAME, "lposition")))
         input_field.clear()
         input_field.send_keys(hs_code)
+        
+        # Slight pause before clicking search
+        time.sleep(random.uniform(0.5, 1.2))
         
         submit_btn = self.driver.find_element(By.NAME, "submit")
         submit_btn.click()
@@ -154,7 +161,10 @@ class ADILScraper:
                 return
 
             self.driver.execute_script("arguments[0].click();", target)
-            time.sleep(self.config.section_load_delay)
+            
+            # Use a slightly randomized delay for section loading
+            jittered_delay = self.config.section_load_delay * random.uniform(0.8, 1.5)
+            time.sleep(jittered_delay)
             
             self.driver.switch_to.default_content()
             self.driver.switch_to.frame(2)

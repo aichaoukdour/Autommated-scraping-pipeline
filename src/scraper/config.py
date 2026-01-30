@@ -1,5 +1,8 @@
 import os
 import logging
+import time
+from contextlib import contextmanager
+from psycopg2 import pool
 from dotenv import load_dotenv
 from dataclasses import dataclass, field
 
@@ -17,6 +20,9 @@ class ScraperConfig:
     max_workers: int = int(os.getenv("SCRAPER_MAX_WORKERS", "3"))
     headless: bool = os.getenv("SCRAPER_HEADLESS", "true").lower() == "true"
     
+    # Notification Settings
+    webhook_url: str = os.getenv("NOTIFY_WEBHOOK_URL", "")
+
     # Database Settings
     db_host: str = os.getenv("DB_HOST", "localhost")
     db_port: str = os.getenv("DB_PORT", "5433") # Defaulting to your current port
@@ -24,9 +30,61 @@ class ScraperConfig:
     db_user: str = os.getenv("DB_USER", "postgres")
     db_password: str = os.getenv("DB_PASSWORD", "postgres")
 
+    def send_notification(self, message: str) -> bool:
+        """Send a notification via webhook (Slack/Discord compatible)"""
+        if not self.webhook_url:
+            return False
+        try:
+            import requests
+            response = requests.post(self.webhook_url, json={"text": message})
+            return response.status_code < 300
+        except Exception:
+            return False
+
     @property
     def db_dsn(self) -> str:
         return f"dbname={self.db_name} user={self.db_user} password={self.db_password} host={self.db_host} port={self.db_port}"
+
+class ConnectionManager:
+    """Manages a pool of database connections with automatic retries."""
+    _pool = None
+
+    @classmethod
+    def initialize_pool(cls, config: ScraperConfig):
+        if cls._pool is None:
+            logger.info(f"Initializing connection pool (min=2, max={config.max_workers + 2})")
+            cls._pool = pool.ThreadedConnectionPool(
+                minconn=2,
+                maxconn=config.max_workers + 2,
+                dsn=config.db_dsn
+            )
+
+    @classmethod
+    @contextmanager
+    def get_connection(cls, timeout=30):
+        """Context manager to get a connection from the pool with retry logic."""
+        start_time = time.time()
+        conn = None
+        while time.time() - start_time < timeout:
+            try:
+                conn = cls._pool.getconn()
+                yield conn
+                cls._pool.putconn(conn)
+                return
+            except Exception as e:
+                if conn:
+                    cls._pool.putconn(conn, close=True)
+                logger.warning(f"Database connection error: {e}. Retrying...")
+                time.sleep(2)
+        
+        raise Exception("Could not acquire a database connection after multiple retries.")
+
+    @classmethod
+    def close_all(cls):
+        if cls._pool:
+            logger.info("Closing all database connections in the pool.")
+            cls._pool.closeall()
+            cls._pool = None
 
 def setup_logging(level: int = logging.INFO) -> logging.Logger:
     logging.basicConfig(
