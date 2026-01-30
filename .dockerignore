@@ -1,0 +1,12 @@
+.git
+.env
+__pycache__
+*.pyc
+logs/
+airflow/
+.pytest_cache
+.ipynb_checkpoints
+venv/
+.venv/
+.vscode/
+.idea/
