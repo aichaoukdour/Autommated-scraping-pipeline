@@ -131,6 +131,9 @@ BOILERPLATE_PHRASES = [
     "Merci de patienter quelques instants...",
     "Vous êtes sur la page", "Page Suivante",
     "La douane marocaine vous donne des droits d’opposition, de rectification et de suppression.",
+    "Position tarifaire :", "Accords et Conventions.", "Droits et Taxes à l'Import.",
+    "Documents et Normes à l'Import.", "Situation du :", "Situation pour l'année :",
+    "Source :", "Description du Produit Remarquable :", "Position tarifaire"
 ]
 
 BOILERPLATE_REGEX = RegexCleaner(

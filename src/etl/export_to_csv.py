@@ -12,8 +12,11 @@ except ImportError:
     sys.path.append(os.path.dirname(os.path.abspath(__file__)))
     from cleaners import clean_hs_label_for_rag
 
+from src.scraper.config import ScraperConfig
+
 # Configuration
-DSN = "dbname=hs user=postgres password=postgres host=localhost port=5433"
+config = ScraperConfig()
+DSN = config.db_dsn
 OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output_csv")
 RAG_CLEAN_COLUMNS = ['hs6_label', 'designation', 'section_label', 'chapter_label', 'hs4_label', 'hs8_label']
 

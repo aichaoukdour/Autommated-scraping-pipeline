@@ -19,9 +19,7 @@ CREATE TABLE IF NOT EXISTS sections (
 );
 
 CREATE INDEX IF NOT EXISTS idx_sections_code ON sections(section_code);
-
--- Optionnel mais recommandé : empêche les doublons exacts (même code + même label)
--- CREATE UNIQUE INDEX IF NOT EXISTS uq_sections_hash ON sections(section_hash);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_sections_code ON sections(section_code);
 
 -- =========================================================
 -- 2) chapters (chapitre = 2 chiffres, parent = section_id)
@@ -42,9 +40,7 @@ CREATE TABLE IF NOT EXISTS chapters (
 
 CREATE INDEX IF NOT EXISTS idx_chapters_section_id ON chapters(section_id);
 CREATE INDEX IF NOT EXISTS idx_chapters_code ON chapters(chapter_code);
-
--- Optionnel mais recommandé
--- CREATE UNIQUE INDEX IF NOT EXISTS uq_chapters_hash ON chapters(chapter_hash);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_chapters_code ON chapters(section_id, chapter_code);
 
 -- =========================================================
 -- 3) hs4_nodes (4 chiffres, parent = chapitre )
@@ -64,9 +60,7 @@ CREATE TABLE IF NOT EXISTS hs4_nodes (
 
 CREATE INDEX IF NOT EXISTS idx_hs4_chapter_id ON hs4_nodes(chapter_id);
 CREATE INDEX IF NOT EXISTS idx_hs4_code ON hs4_nodes(hs4);
-
--- Optionnel mais recommandé
--- CREATE UNIQUE INDEX IF NOT EXISTS uq_hs4_hash ON hs4_nodes(hs4_hash);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_hs4_code ON hs4_nodes(chapter_id, hs4);
 
 -- =========================================================
 -- 4) hs6_nodes (6 chiffres, parent = chapitre )
@@ -86,9 +80,7 @@ CREATE TABLE IF NOT EXISTS hs6_nodes (
 
 CREATE INDEX IF NOT EXISTS idx_hs6_hs4_id ON hs6_nodes(hs4_id);
 CREATE INDEX IF NOT EXISTS idx_hs6_code ON hs6_nodes(hs6);
-
--- Optionnel mais recommandé
--- CREATE UNIQUE INDEX IF NOT EXISTS uq_hs6_hash ON hs6_nodes(hs6_hash);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_hs6_code ON hs6_nodes(hs4_id, hs6);
 
 -- =========================================================
 -- 5) hs_products (HS10 + données riches, HS8 intégré)
