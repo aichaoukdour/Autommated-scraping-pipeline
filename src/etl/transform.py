@@ -1,5 +1,6 @@
-# transform.py - REFACTORED
 import sys
+import hashlib
+import json
 from datetime import datetime
 from schemas import HSProduct
 from hs_parser import (
@@ -125,6 +126,18 @@ def transform(raw: dict) -> dict:
         },
         "raw": raw
     }
+
+    # 6b. Calculate Canonical Hash (for Smart Update Detection)
+    hash_payload = {
+        "designation": product["designation"],
+        "taxation": product["taxation"]["taxes"],
+        "documents": product["documents"]["documents"],
+        "agreements": product["accord_convention"]["accord_convention"],
+        "history": product["historique"]["items"]
+    }
+    hash_str = json.dumps(hash_payload, sort_keys=True)
+    product["canonical_hash"] = hashlib.sha256(hash_str.encode()).hexdigest()
+    product["canonical_text"] = f"Designation: {product['designation']}\n"
     
     # 7. Validate with Pydantic
     try:

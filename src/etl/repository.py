@@ -57,9 +57,9 @@ class HSRepository:
                 hs10, hs6_id, hs8_label, section_label, chapter_label,
                 hs4_label, hs6_label, designation, unit_of_measure,
                 taxation, documents, agreements, import_duty_history,
-                lineage, raw, updated_at
+                lineage, raw, canonical_hash, canonical_text, updated_at
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, now())
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, now())
             ON CONFLICT (hs10)
             DO UPDATE SET
                 hs8_label = EXCLUDED.hs8_label,
@@ -75,7 +75,12 @@ class HSRepository:
                 import_duty_history = EXCLUDED.import_duty_history,
                 lineage = EXCLUDED.lineage,
                 raw = EXCLUDED.raw,
-                updated_at = now()
+                canonical_hash = EXCLUDED.canonical_hash,
+                canonical_text = EXCLUDED.canonical_text,
+                updated_at = CASE 
+                    WHEN hs_products.canonical_hash IS DISTINCT FROM EXCLUDED.canonical_hash THEN now() 
+                    ELSE hs_products.updated_at 
+                END
         """, (
             product["hs_code"],
             hs6_id,
@@ -91,5 +96,7 @@ class HSRepository:
             Json(product["accord_convention"]),
             Json(product["historique"]),
             Json(product["lineage"]),
-            Json(product["raw"])
+            Json(product["raw"]),
+            product["canonical_hash"],
+            product.get("canonical_text")
         ))
