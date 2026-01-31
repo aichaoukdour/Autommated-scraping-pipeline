@@ -1,6 +1,8 @@
 import json
+import logging
 from psycopg2.extras import Json
-from scraper.config import logger
+
+logger = logging.getLogger(__name__)
 
 class HSRepository:
     """

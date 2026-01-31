@@ -1,7 +1,8 @@
 """ADIL Text Parser module."""
 import re
 from datetime import datetime
-from cleaners import parse_french_date, remove_adil_boilerplate, clean_hs_label_for_rag
+from scraper.config import logger
+from cleaners import parse_french_date, remove_adil_boilerplate, clean_hs_label_for_rag, encoding_normalizer
 
 def extract_section_and_chapter(sections: dict, pos_tarifaire: dict):
     """Extract Section and Chapter codes/labels."""
@@ -91,7 +92,7 @@ def extract_designation(pos_tarifaire: dict, hs_code: str):
         designation = key_values.get("DESIGNATION DU PRODUIT", "NA")
     
     if designation and designation != "NA":
-        designation = re.sub(r'â€"', '-', designation)
+        designation = encoding_normalizer(designation)
         designation = re.sub(r'\s+', ' ', designation)
         designation = remove_adil_boilerplate(designation)
         

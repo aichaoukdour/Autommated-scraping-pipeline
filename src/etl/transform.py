@@ -2,6 +2,7 @@ import sys
 import hashlib
 import json
 from datetime import datetime
+from scraper.config import logger
 from schemas import HSProduct
 from hs_parser import (
     extract_section_and_chapter,
@@ -20,7 +21,7 @@ def transform(raw: dict) -> dict:
     Delegates complex parsing logic to hs_parser.py.
     """
     hs_code = raw.get("hs_code", "NA")
-    print(f"\n>>>> TRANSFORMING: {hs_code}")
+    logger.info(f"Transforming HS Code: {hs_code}")
     
     # 1. Prepare Data Context
     sections_list = raw.get("sections", [])
@@ -33,7 +34,7 @@ def transform(raw: dict) -> dict:
     # 2. Extract Base Hierarchy (Section, Chapter)
     section_code, section_label, chapter_code, chapter_label = extract_section_and_chapter(sections, pos_tarifaire)
     
-    print(f"DEBUG: Section: {section_code}, Chapter: {chapter_code}")
+    logger.debug(f"Hierarchy - Section: {section_code}, Chapter: {chapter_code}")
 
     # 3. Extract Designation
     designation = extract_designation(pos_tarifaire, hs_code)
@@ -48,7 +49,7 @@ def transform(raw: dict) -> dict:
     # HS10 label is effectively the final designation
     final_designation = hierarchy_data["final_designation"]
     
-    print(f"DEBUG: Labels - HS4: {hs4_label}, HS6: {hs6_label}, HS8: {hs8_label}")
+    logger.debug(f"Labels - HS4: {hs4_label}, HS6: {hs6_label}, HS8: {hs8_label}")
 
     # 5. Extract Details
     unit_of_measure = extract_unit_of_measure(pos_tarifaire, raw_text)
@@ -56,6 +57,10 @@ def transform(raw: dict) -> dict:
     documents = extract_documents(sections)
     agreements = extract_agreements(sections)
     history = extract_history(sections)
+
+    # Shared metadata helper
+    def get_meta():
+        return {"source": "ADII", "scraped_at": scraped_at, "parser_version": parser_version, "lang": "fr"}
 
     # 6. Build Final Product Structure
     hs4_code = hs_code[:4]
@@ -78,29 +83,24 @@ def transform(raw: dict) -> dict:
             "hs4": {"code": hs4_code, "label": hs4_label, "present": hs4_label != "NA"},
             "hs6": {"code": hs6_code, "label": hs6_label, "present": hs6_label != "NA"},
             "hs8": {"code": hs8_code, "label": hs8_label, "present": hs8_label != "NA"},
-            "meta": {
-                "source": "ADII",
-                "scraped_at": scraped_at,
-                "parser_version": parser_version,
-                "lang": "fr"
-            }
+            "meta": get_meta()
         },
         "unit_of_measure": unit_of_measure,
         "taxation": {
             "taxes": taxes, 
-            "meta": {"source": "ADII", "scraped_at": scraped_at, "parser_version": parser_version, "lang": "fr"}
+            "meta": get_meta()
         },
         "documents": {
             "documents": documents, 
-            "meta": {"source": "ADII", "scraped_at": scraped_at, "parser_version": parser_version, "lang": "fr"}
+            "meta": get_meta()
         },
         "accord_convention": {
             "accord_convention": agreements, 
-            "meta": {"source": "ADII", "scraped_at": scraped_at, "parser_version": parser_version, "lang": "fr"}
+            "meta": get_meta()
         },
         "historique": {
             "items": history, 
-            "meta": {"source": "ADII", "scraped_at": scraped_at, "parser_version": parser_version, "lang": "fr"}
+            "meta": get_meta()
         },
         "lineage": {
             "scraped_at": scraped_at,
@@ -142,8 +142,8 @@ def transform(raw: dict) -> dict:
     # 7. Validate with Pydantic
     try:
         HSProduct(**product)
-        print(f"✅ Data validation passed for {hs_code}")
+        logger.debug(f"Data validation passed for {hs_code}")
     except Exception as e:
-        print(f"⚠️ Validation warning for {hs_code}: {e}")
+        logger.warning(f"Validation warning for {hs_code}: {e}")
     
     return product

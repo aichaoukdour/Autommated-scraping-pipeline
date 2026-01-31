@@ -58,6 +58,15 @@ def unicode_normalizer(text: str) -> str:
     return unicodedata.normalize("NFKC", fix_text(text))
 
 
+def encoding_normalizer(text: str) -> str:
+    """Fix common encoding artifacts from ADIL web pages."""
+    if not text:
+        return text
+    text = re.sub(r'â€"', '-', text)
+    text = text.replace('\xa0', ' ')
+    return text
+
+
 def cleantext_normalizer(text: str) -> str:
     return clean(
         text,

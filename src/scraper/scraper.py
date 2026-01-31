@@ -16,6 +16,8 @@ from .browser import WebDriverManager
 
 class ADILScraper:
     SKIP_KEYWORDS = ['nouvelle recherche', 'recherche', 'retour', 'accueil', 'home']
+    FRAME_NAV = 1
+    FRAME_CONTENT = 2
     
     def __init__(self, config: ScraperConfig = None, driver=None):
         self.config = config or ScraperConfig()
@@ -29,7 +31,7 @@ class ADILScraper:
         try:
             self.driver.current_url
             return True
-        except:
+        except Exception:
             return False
 
     def reset_session(self):
@@ -103,7 +105,7 @@ class ADILScraper:
         submit_btn.click()
         
         try:
-            self.wait.until(EC.frame_to_be_available_and_switch_to_it(2))
+            self.wait.until(EC.frame_to_be_available_and_switch_to_it(self.FRAME_CONTENT))
             self.driver.switch_to.default_content()
         except TimeoutException:
             raise Exception("Search yielded no results or timed out.")
@@ -111,7 +113,7 @@ class ADILScraper:
     def _scrape_main_content(self, result: ScrapeResult) -> None:
         try:
             self.driver.switch_to.default_content()
-            self.driver.switch_to.frame(2)
+            self.driver.switch_to.frame(self.FRAME_CONTENT)
             
             html_content = self.driver.find_element(By.TAG_NAME, "body").get_attribute("outerHTML")
             
@@ -130,7 +132,7 @@ class ADILScraper:
 
     def _get_section_links(self) -> List[Dict[str, str]]:
         self.driver.switch_to.default_content()
-        self.driver.switch_to.frame(1)
+        self.driver.switch_to.frame(self.FRAME_NAV)
         
         links = self.driver.find_elements(By.TAG_NAME, "a")
         section_links = []
@@ -151,7 +153,7 @@ class ADILScraper:
         
         try:
             self.driver.switch_to.default_content()
-            self.driver.switch_to.frame(1)
+            self.driver.switch_to.frame(self.FRAME_NAV)
             
             links = self.driver.find_elements(By.TAG_NAME, "a")
             target = next((l for l in links if " ".join(l.text.split()) == section_name), None)
@@ -167,7 +169,7 @@ class ADILScraper:
             time.sleep(jittered_delay)
             
             self.driver.switch_to.default_content()
-            self.driver.switch_to.frame(2)
+            self.driver.switch_to.frame(self.FRAME_CONTENT)
             
             body = self.driver.find_element(By.TAG_NAME, "body")
             html_content = body.get_attribute("outerHTML")
@@ -189,5 +191,5 @@ class ADILScraper:
     def close(self):
         try:
             self.driver.quit()
-        except:
+        except Exception:
             pass
