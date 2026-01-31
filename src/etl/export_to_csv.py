@@ -4,15 +4,16 @@ import os
 import psycopg2
 from psycopg2.extras import DictCursor
 
-# Try to import cleaner, if fails (running standalone), append path
-try:
-    from cleaners import clean_hs_label_for_rag
-except ImportError:
-    import sys
-    sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-    from cleaners import clean_hs_label_for_rag
+# Ensure project root and src are in path for imports
+import sys
+_project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+_src_dir = os.path.join(_project_root, "src")
+for _path in [_project_root, _src_dir]:
+    if _path not in sys.path:
+        sys.path.insert(0, _path)
 
-from src.scraper.config import ScraperConfig
+from cleaners import clean_hs_label_for_rag
+from scraper.config import ScraperConfig
 
 # Configuration
 config = ScraperConfig()

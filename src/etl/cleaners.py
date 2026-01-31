@@ -1,170 +1,94 @@
 from typing import Optional, Callable, Iterable
 import re
-import unicodedata
-
 from ftfy import fix_text
 from cleantext import clean
 from babel.numbers import parse_decimal
 from dateparser import parse as dateparse
 
 
-# ===================================================================
-# Core utilities
-# ===================================================================
+# Core Definitions
 
-CleanerFn = Callable[[str], str]
-
-
-def normalize_whitespace(text: str) -> str:
-    return " ".join(text.split()).strip()
-
-
-def safe_apply(text: Optional[str], steps: Iterable[CleanerFn]) -> Optional[str]:
-    """Apply cleaning steps safely in sequence."""
     if not text:
         return None
+    text = fix_text(text)
 
-    for step in steps:
-        text = step(text)
-
-    text = normalize_whitespace(text)
-    return text or None
-
-
-# ===================================================================
-# Regex-based cleaner abstraction
-# ===================================================================
-
-class RegexCleaner:
-    """Reusable regex substitution engine."""
-
-    def __init__(self, rules: Iterable[tuple[str, str]], flags: int = 0):
-        self._patterns = [
-            (re.compile(pattern, flags), replacement)
-            for pattern, replacement in rules
-        ]
-
-    def __call__(self, text: str) -> str:
-        for pattern, replacement in self._patterns:
-            text = pattern.sub(replacement, text)
-        return text
-
-
-# ===================================================================
-# Generic text normalization
-# ===================================================================
-
-def unicode_normalizer(text: str) -> str:
-    return unicodedata.normalize("NFKC", fix_text(text))
-
-
-def encoding_normalizer(text: str) -> str:
-    """Fix common encoding artifacts from ADIL web pages."""
-    if not text:
-        return text
-    text = re.sub(r'â€"', '-', text)
-    text = text.replace('\xa0', ' ')
-    return text
-
-
-def cleantext_normalizer(text: str) -> str:
-    return clean(
+    text = clean(
         text,
         fix_unicode=True,
         to_ascii=False,
-        strip_lines=True,
-        no_line_breaks=False,
         lower=False,
+        no_line_breaks=False
     )
+    return " ".join(text.split()) if text else None
 
 
-def clean_text_block(text: Optional[str]) -> Optional[str]:
-    return safe_apply(
-        text,
-        steps=[
-            unicode_normalizer,
-            cleantext_normalizer,
-        ],
-    )
+class RegexCleaner:
+    def __init__(self, rules: Iterable[tuple[str, str]], flags: int = 0):
+        self._patterns = [(re.compile(p, flags), r) for p, r in rules]
+
+    def __call__(self, text: str) -> str:
+        for p, r in self._patterns:
+            text = p.sub(r, text)
+        return text
 
 
-# ===================================================================
-# Parsing helpers
-# ===================================================================
-
-def parse_percentage(value: Optional[str]) -> Optional[float]:
-    if not value:
-        return None
-    try:
-        return float(parse_decimal(value.replace("%", "").strip(), locale="fr_FR"))
-    except Exception:
-        return None
-
-
-def parse_french_date(text: Optional[str]) -> Optional[str]:
+def _pipeline(text: str, *steps: Callable[[str], str]) -> Optional[str]:
     if not text:
         return None
-    parsed = dateparse(text, languages=["fr"])
-    return parsed.date().isoformat() if parsed else None
+    for step in steps:
+        text = step(text)
+    return normalize_text(text)
 
 
-# ===================================================================
-# HS label cleaner (RAG-optimized)
-# ===================================================================
+# Domain Logic (HS, ADIL)
 
-HS_LABEL_CLEANER = RegexCleaner(
-    rules=[
-        (r"^[\s\-–—]+", ""),
-        (r";[\s\-–—]+", "; "),
-        (r"%[\s\-–—]+", ""),
-        (r"\s[\-–—]\s[\-–—]\s[\-–—]\s", " "),
-        (r"\s[\-–—]\s[\-–—]\s", " "),
-    ]
-)
-
+_HS_CLEANER = RegexCleaner([
+    (r"^[\s\-–—]+", ""),
+    (r";[\s\-–—]+", "; "),
+    (r"%[\s\-–—]+", ""),
+    (r"(\s[\-–—]){2,}\s?", " "),
+])
 
 def clean_hs_label_for_rag(text: Optional[str]) -> Optional[str]:
-    return safe_apply(text, steps=[HS_LABEL_CLEANER])
+    return _pipeline(text, _HS_CLEANER) if text else None
 
 
-# ===================================================================
-# ADiL boilerplate cleaner
-# ===================================================================
-
-BOILERPLATE_PHRASES = [
+_BOILERPLATE = [
     "ADiL", "Nomenclature douanière.", "Position tarifaire :",
     "Source : ADII", "Office des Changes", "DESIGNATION DU PRODUIT :",
     "Droits et Taxes à l'Import.", "Documents et Normes à l'Import.",
     "Classification Nationale des Echanges Commerciaux",
     "Classification Internationale des Echanges Commerciaux",
-    "Merci de patienter quelques instants...",
-    "Vous êtes sur la page", "Page Suivante",
-    "La douane marocaine vous donne des droits d’opposition, de rectification et de suppression.",
-    "Position tarifaire :", "Accords et Conventions.", "Droits et Taxes à l'Import.",
-    "Documents et Normes à l'Import.", "Situation du :", "Situation pour l'année :",
-    "Source :", "Description du Produit Remarquable :", "Position tarifaire"
+    "Merci de patienter quelques instants...", "Vous êtes sur la page",
+    "Page Suivante", "Accords et Conventions.", "Situation du :",
+    "Situation pour l'année :", "Source :", "Position tarifaire",
+    "Description du Produit Remarquable :",
+    "Pays", "Liste", "TPI", "Situation",
+    "La douane marocaine vous donne des droits d'opposition, de rectification et de suppression.",
 ]
 
-BOILERPLATE_REGEX = RegexCleaner(
-    rules=[("|".join(map(re.escape, BOILERPLATE_PHRASES)), "")],
-    flags=re.IGNORECASE,
-)
-
-NOISE_CLEANER = RegexCleaner(
-    rules=[
-        (r"\d{2}/\d{2}/\d{4} \d{2}:\d{2}:\d{2}", ""),
-        (r"\*{2,}", ""),
-        (r"-{3,}", ""),
-    ]
-)
-
+_ADIL_CLEANER = RegexCleaner([
+    ("|".join(map(re.escape, _BOILERPLATE)), ""),
+    (r"\d{2}/\d{2}/\d{4} \d{2}:\d{2}:\d{2}", ""),
+    (r"[*-]{3,}", ""),
+], flags=re.IGNORECASE)
 
 def remove_adil_boilerplate(text: Optional[str]) -> Optional[str]:
-    return safe_apply(
-        text,
-        steps=[
-            BOILERPLATE_REGEX,
-            NOISE_CLEANER,
-            clean_text_block,
-        ],
-    )
+    return _pipeline(text, _ADIL_CLEANER) if text else None
+
+
+# Extractors
+
+def parse_percentage(value: Optional[str]) -> Optional[float]:
+    if not value: return None
+    try: return float(parse_decimal(value.replace("%", "").strip(), locale="fr_FR"))
+    except: return None
+
+def parse_french_date(text: Optional[str]) -> Optional[str]:
+    if not text: return None
+    parsed = dateparse(text, languages=["fr"])
+    return parsed.date().isoformat() if parsed else None
+
+# Shim for encoding normalizer if needed by legacy code
+def encoding_normalizer(text: str) -> str:
+    return normalize_text(text) or ""
