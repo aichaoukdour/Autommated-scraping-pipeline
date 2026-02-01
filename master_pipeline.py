@@ -36,10 +36,6 @@ def get_codes_to_skip(dsn: str, refresh_days: int = 25) -> Set[str]:
         logger.warning(f"Could not fetch sync state from DB (starting fresh): {e}")
         return set()
 
-def get_codes_to_skip_task(dsn: str, refresh_days: int = 25) -> Set[str]:
-    """Wrapper for Airflow/Orchestration tasks if needed, currently just calls the core logic."""
-    return get_codes_to_skip(dsn, refresh_days)
-
 def run_pipeline(limit=None, force_etl=False):
     logger.info(f"Starting Master Pipeline (Limit: {limit}, Force ETL: {force_etl})...")
     
@@ -56,7 +52,7 @@ def run_pipeline(limit=None, force_etl=False):
         logger.info("Force ETL enabled: Re-processing EVERYTHING.")
         codes_to_skip = set()
     else:
-        codes_to_skip = get_codes_to_skip_task(config.db_dsn)
+        codes_to_skip = get_codes_to_skip(config.db_dsn)
         logger.info(f"Skipping {len(codes_to_skip)} codes updated in the last 25 days.")
     
     # 1. Database Initialization

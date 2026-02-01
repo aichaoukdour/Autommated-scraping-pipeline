@@ -42,21 +42,3 @@ def load_product(product: dict, conn):
             conn.rollback()
             logger.debug(f"SQL Error for {product['hs_code']}: {e}")
             raise e
-
-def load(products: list, dsn: str):
-    """
-    Entry point called from main ETL
-    """
-    conn = psycopg2.connect(dsn)
-    try:
-        conn.autocommit = False
-        for product in products:
-            load_product(product, conn)
-        conn.commit()
-        logger.info(f"Loaded {len(products)} HS products successfully")
-    except Exception as e:
-        conn.rollback()
-        logger.error("LOAD FAILED - ROLLBACK")
-        raise e
-    finally:
-        conn.close()
